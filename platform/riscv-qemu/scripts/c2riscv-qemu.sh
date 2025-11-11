@@ -2,7 +2,7 @@
 set -e
 
 # c2riscv-qemu.sh - Compile C package to RISC-V QEMU virt binary
-# Usage: ./go-wasm-rv64/riscv-qemu/scripts/c2riscv-qemu.sh <guest-c-package-dir> <output-elf>
+# Usage: ./platform/riscv-qemu/scripts/c2riscv-qemu.sh <guest-c-package-dir> <output-elf>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RISCV_QEMU_DIR="$(dirname "$SCRIPT_DIR")"
@@ -85,22 +85,22 @@ CFLAGS=(
 INCLUDES=(
     -I"$GUEST_DIR"
     -Iwasi/embedded
-    -Igo-wasm-rv64/riscv-qemu
+    -Iplatform/riscv-qemu
 )
 
 # Source files
 SOURCES=(
-    go-wasm-rv64/riscv-qemu/main.c
-    go-wasm-rv64/riscv-qemu/syscalls.c
+    platform/riscv-qemu/main.c
+    platform/riscv-qemu/syscalls.c
     "$GUEST_DIR/guest.c"
     wasi/embedded/wasi.c
 )
 
 # Assembly source
-ASM_SOURCE=go-wasm-rv64/riscv-qemu/startup.S
+ASM_SOURCE=platform/riscv-qemu/startup.S
 
 # Linker script
-LINKER_SCRIPT=go-wasm-rv64/riscv-qemu/virt.ld
+LINKER_SCRIPT=platform/riscv-qemu/virt.ld
 
 # Linker flags (matching demo-qemu-virt-riscv/Makefile)
 LDFLAGS=(

@@ -2,7 +2,7 @@
 set -e
 
 # c2native-amd64.sh - Compile guest C package to native AMD64 binary
-# Usage: ./go-wasm-rv64/amd64/scripts/c2native-amd64.sh <guest-package-dir> <output-binary>
+# Usage: ./platform/amd64/scripts/c2native-amd64.sh <guest-package-dir> <output-binary>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AMD64_DIR="$(dirname "$SCRIPT_DIR")"
@@ -84,14 +84,14 @@ CFLAGS=(
 INCLUDES=(
     -I"$GUEST_DIR"
     -Iwasi/embedded
-    -Igo-wasm-rv64/amd64
+    -Iplatform/amd64
 )
 
 # Source files
 SOURCES=(
-    go-wasm-rv64/amd64/main.c
-    go-wasm-rv64/amd64/amd64.c
-    go-wasm-rv64/amd64/custom_imports.c
+    platform/amd64/main.c
+    platform/amd64/amd64.c
+    platform/amd64/custom_imports.c
     "$GUEST_DIR/guest.c"
     wasi/embedded/wasi.c
 )

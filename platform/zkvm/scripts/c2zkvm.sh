@@ -2,7 +2,7 @@
 set -e
 
 # c2zkvm.sh - Compile C package to zkvm RISC-V binary
-# Usage: ./go-wasm-rv64/zkvm/scripts/c2zkvm.sh <guest-c-package-dir> <output-elf>
+# Usage: ./platform/zkvm/scripts/c2zkvm.sh <guest-c-package-dir> <output-elf>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ZKVM_DIR="$(dirname "$SCRIPT_DIR")"
@@ -83,24 +83,24 @@ CFLAGS=(
 INCLUDES=(
     -I"$GUEST_DIR"
     -Iwasi/embedded
-    -Igo-wasm-rv64/zkvm
+    -Iplatform/zkvm
 )
 
 # Source files (minimal set)
 SOURCES=(
-    go-wasm-rv64/zkvm/main.c
-    go-wasm-rv64/zkvm/zkvm.c
-    go-wasm-rv64/zkvm/syscalls.c
-    go-wasm-rv64/zkvm/custom_imports.c
+    platform/zkvm/main.c
+    platform/zkvm/zkvm.c
+    platform/zkvm/syscalls.c
+    platform/zkvm/custom_imports.c
     "$GUEST_DIR/guest.c"
     wasi/embedded/wasi.c
 )
 
 # Assembly source
-ASM_SOURCE=go-wasm-rv64/zkvm/startup.S
+ASM_SOURCE=platform/zkvm/startup.S
 
 # Linker script
-LINKER_SCRIPT=go-wasm-rv64/zkvm/zkvm.ld
+LINKER_SCRIPT=platform/zkvm/zkvm.ld
 
 # Linker flags
 LDFLAGS=(

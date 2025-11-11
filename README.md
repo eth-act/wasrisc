@@ -40,7 +40,7 @@ make all
 #### With custom input file
 
 ```
-cd go-wasm-rv64
+cd platform
 make -C zkvm example.zkvm.bin
 ziskemu -e ./zkvm/example.zkvm.bin -i go.png
 ```
