@@ -84,7 +84,7 @@ CFLAGS=(
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Igo-wasm-rv64/wasi/embedded
+    -Iwasi/embedded
     -Igo-wasm-rv64/riscv-qemu
 )
 
@@ -93,7 +93,7 @@ SOURCES=(
     go-wasm-rv64/riscv-qemu/main.c
     go-wasm-rv64/riscv-qemu/syscalls.c
     "$GUEST_DIR/guest.c"
-    go-wasm-rv64/wasi/embedded/wasi.c
+    wasi/embedded/wasi.c
 )
 
 # Assembly source

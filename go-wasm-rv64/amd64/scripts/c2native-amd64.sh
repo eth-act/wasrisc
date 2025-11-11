@@ -83,7 +83,7 @@ CFLAGS=(
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Igo-wasm-rv64/wasi/embedded
+    -Iwasi/embedded
     -Igo-wasm-rv64/amd64
 )
 
@@ -93,7 +93,7 @@ SOURCES=(
     go-wasm-rv64/amd64/amd64.c
     go-wasm-rv64/amd64/custom_imports.c
     "$GUEST_DIR/guest.c"
-    go-wasm-rv64/wasi/embedded/wasi.c
+    wasi/embedded/wasi.c
 )
 
 # Link libraries
