@@ -18,13 +18,12 @@ Target Binary (zkVM/RISC-V/AMD64)
 
 ## Prerequisites
 
-### Docker (Recommended)
 The easiest way to build is using the provided Docker environment, which includes:
+
 - RISC-V GNU Toolchain with newlib (rv64ima)
 - w2c2 WebAssembly-to-C transpiler
-- All dependencies pre-configured
 
-> Running the docker script the first time, will take some time because it is rebuilding the RISCV gnu toolchain from source.
+> Running the docker script the first time, will take some time because it is rebuilding the RISCV gnu toolchain from source inside of Docker.
 
 ## Quick Start
 
@@ -64,6 +63,7 @@ For Go (included examples):
 ```
 
 #### Zisk
+
 ```bash
 ./platform/zkvm/scripts/c2zkvm.sh \
     build/c-packages/println \
