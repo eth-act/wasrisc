@@ -1,5 +1,4 @@
-## Native
-
+# Native
 
 We can include a native impl for WASI here. The original w2c2/wasi impl is missing impls for some methods that we need so we can't use it.
 
