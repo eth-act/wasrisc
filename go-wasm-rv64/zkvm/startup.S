@@ -1,10 +1,13 @@
+/* Startup code for RISC-V zkvm with newlib */
+
 .section .text.init
 .global _start
 
 _start:
-    la sp, _stack_top
-    
-    # Clear BSS section - using symbols defined in our linker script
+    /* Set up stack pointer */
+    la sp, _init_stack_top
+
+    /* Clear BSS section */
     la t0, _bss_start
     la t1, _bss_end
 clear_bss:
@@ -14,8 +17,8 @@ clear_bss:
     j clear_bss
 bss_done:
 
-    # Jump to C code
+    /* Call main */
     call main
-    
-    # In case main returns
+
+    /* Should never reach here, but just in case loop forever */
 1:  j 1b

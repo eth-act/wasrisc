@@ -20,21 +20,18 @@ SECTIONS
 
   . = ALIGN(8);
   PROVIDE(_global_pointer = .);
-  .rodata : { *(.rodata .rodata.*)} >rom AT>rom :rodata
+  .rodata : { *(.rodata .rodata.* .srodata .srodata.*)} >rom AT>rom :rodata
 
   .data : { *(.data .data.* .sdata .sdata.*) } >ram AT>ram :data
 
   .bss : {
     PROVIDE(_bss_start = .);
-    *(.bss .bss.*);
-    PROVIDE(_bss_end = .); # ... and one at the end
+    *(.bss .bss.* .sbss .sbss.*);
+    PROVIDE(_bss_end = .);
   } >ram AT>ram :bss
 
   . = ALIGN(8);
-  _stack_size = 0x100000; # 1M bytes
-  PROVIDE(_init_stack_top = . + _stack_size); # reserve 1M bytes for the initialisation stack
-  _stack_top = _init_stack_top;
-  _stack_bottom = _stack_top - _stack_size;
+  PROVIDE(_init_stack_top = . + 0x100000);
 
   PROVIDE(_kernel_heap_bottom = _init_stack_top);
   PROVIDE(_kernel_heap_top = ORIGIN(ram) + LENGTH(ram));
