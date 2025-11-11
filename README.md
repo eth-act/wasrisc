@@ -1,6 +1,6 @@
-# WASM to C to RISC-V Pipeline
+# WASRISC
 
-This repository contains a toolchain for transpiling WASM-WASI programs to run on bare metal RISC-V targets. The main target for this repository are RISCV zkVMs. One can think of this target as a very limited virtual CPU. 
+This repository contains a toolchain for transpiling WASM-WASI programs to run on bare metal RISC-V targets. The main target for this repository are RISCV zkVMs. One can think of this target as a very limited virtual CPU.
 
 Note: Any language that compiles to WASM with WASI support(0.1) can use this pipeline
 
