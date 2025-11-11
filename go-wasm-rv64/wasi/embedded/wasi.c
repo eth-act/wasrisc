@@ -1,6 +1,4 @@
 #include "w2c2_base.h"
-#include "example.h"
-
 #include <stdio.h>
 
 #define TIME_OFFSET            1758880055000000000LL
@@ -93,7 +91,7 @@ U32 wasi_snapshot_preview1__clock_time_get(void* i, U32 clockID, U64 precision, 
 	static int64_t ticks = 1;
 
 	wasmMemory* memory = wasiMemory(i);
-
+	// TODO: For zkvms, we can return the number of cycles
 	// printf("wasi_snapshot_preview1__clock_time_get\n");
 
 	i64_store(memory, resultPointer, TIME_OFFSET+ticks);
