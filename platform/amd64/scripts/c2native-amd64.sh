@@ -78,6 +78,7 @@ echo "Compiling..."
 CFLAGS=(
     -g
     -DAMD64
+    -O0
 )
 
 # Include directories
