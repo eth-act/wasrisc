@@ -27,6 +27,6 @@ find "$GO_EXAMPLES_DIR" -maxdepth 2 -name "Cargo.toml" -type f | while read -r c
 
     # Build the Go code to WASM
     cd "$example_dir"
-    cargo build --target wasm32-wasip1 --release
+    cargo build --target wasm32-wasip1 --bin $example_name --release
     cp "target/wasm32-wasip1/release/$example_name.wasm" "$output_wasm"
 done
