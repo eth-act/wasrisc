@@ -31,6 +31,15 @@ fi
 GUEST_DIR="$1"
 OUTPUT="$2"
 
+if [ -n "$OPT_LEVEL" ]; then
+    OPT_LEVEL="$OPT_LEVEL"
+    echo "Using provided OPT_LEVEL: $OPT_LEVEL"
+else
+    # OPT_LEVEL is not set, set default value
+    OPT_LEVEL="-O0"
+    echo "OPT_LEVEL not set, using default: $OPT_LEVEL"
+fi
+
 # Change to project root
 cd "$PROJECT_ROOT"
 
@@ -70,7 +79,7 @@ CFLAGS=(
     -static
     -ffunction-sections
     -fdata-sections
-    -O0
+    $OPT_LEVEL
 )
 
 # Include directories
