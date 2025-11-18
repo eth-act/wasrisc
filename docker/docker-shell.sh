@@ -16,6 +16,7 @@ fi
 
 # Run command in Docker
 docker run --rm \
+    -e QEMU_LOG=plugin \
     -v "$PROJECT_ROOT:/workspace" \
     -w /workspace \
     "$IMAGE_NAME" \
