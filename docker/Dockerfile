@@ -51,6 +51,8 @@ RUN git clone https://github.com/turbolent/w2c2.git /opt/w2c2 && \
 # Add toolchains to PATH
 ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:${PATH}"
 
+RUN apt update && apt install -y gcc-riscv64-linux-gnu
+
 # Set working directory
 WORKDIR /workspace
 
