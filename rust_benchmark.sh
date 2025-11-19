@@ -10,7 +10,7 @@ echo "Translating WASM to C..."
 
 ./docker/wasm2c-package.sh examples/build-wasm/rust/fibonacci.wasm build/c-packages/fibonacci/
 ./docker/wasm2c-package.sh examples/build-wasm/rust/hello_world.wasm build/c-packages/hello_world/
-./docker/wasm2c-package.sh examples/build-wasm/rust/reva-client-eth.wasm build/c-packages/reva-client-eth/
+MAX_FUNC=10 ./docker/wasm2c-package.sh examples/build-wasm/rust/reva-client-eth.wasm build/c-packages/reva-client-eth/
 
 echo "Compiling C to RISCV..."
 
@@ -23,7 +23,7 @@ OPT_LEVEL="-O3" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-
 (cd examples/rust/hello_world; cargo build --target riscv64gc-unknown-linux-gnu --release)
 
 OPT_LEVEL="-O0" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O0.elf
-OPT_LEVEL="-O1" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O1.elf
+OPT_LEVEL="-O3" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O3.elf
 (cd examples/rust/reva-client-eth; cargo build --bin=reva-client-eth --target riscv64gc-unknown-linux-gnu --release)
 
 echo "Executing with qemu-riscv64"

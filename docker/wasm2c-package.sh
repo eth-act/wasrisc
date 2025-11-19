@@ -45,6 +45,9 @@ fi
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
+if [ -n "$OUTPUT_DIR" ]; then
+  rm -f $OUTPUT_DIR/*
+fi
 
 echo "======================================"
 echo "WASM to C Packaging"
@@ -62,7 +65,14 @@ cp "$INPUT_WASM" "$TEMP_GUEST_WASM"
 
 # Run w2c2 via Docker to generate C files with "guest" module name
 echo "Transpiling WASM to C..."
-"$SCRIPT_DIR/docker-shell.sh" w2c2 "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+if [ -n "$MAX_FUNC" ]; then
+    echo "Using provided MAX_FUNC: $MAX_FUNC"
+    "$SCRIPT_DIR/docker-shell.sh" w2c2 "-f $MAX_FUNC" "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+else
+    echo "MAX_FUNC not set"
+    "$SCRIPT_DIR/docker-shell.sh" w2c2 "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+fi
+
 
 # Remove temporary guest.wasm
 rm -f "$TEMP_GUEST_WASM"

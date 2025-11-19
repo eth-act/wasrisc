@@ -76,6 +76,7 @@ CFLAGS=(
     -D__bool_true_false_are_defined
     -ffunction-sections
     -fdata-sections
+    -flto
     -O0
     -g
     -Wall
@@ -92,7 +93,7 @@ INCLUDES=(
 SOURCES=(
     platform/riscv-qemu/main.c
     platform/riscv-qemu/syscalls.c
-    "$GUEST_DIR/guest.c"
+    $(find $GUEST_DIR -type f -name "*.c")
     wasi/embedded/wasi.c
 )
 
