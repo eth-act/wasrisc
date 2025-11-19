@@ -77,6 +77,7 @@ CFLAGS=(
     -mabi=lp64d
     -mcmodel=medany
     -static
+    -flto
     -ffunction-sections
     -fdata-sections
     $OPT_LEVEL
@@ -91,7 +92,7 @@ INCLUDES=(
 # Source files
 SOURCES=(
     platform/riscv-qemu/main.c
-    "$GUEST_DIR/guest.c"
+    $(find $GUEST_DIR -type f -name "*.c")
     wasi/embedded/wasi.c
 )
 

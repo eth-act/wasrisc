@@ -79,6 +79,7 @@ CFLAGS=(
     -g
     -DAMD64
     -O0
+    -flto
 )
 
 # Include directories
@@ -93,7 +94,7 @@ SOURCES=(
     platform/amd64/main.c
     platform/amd64/amd64.c
     platform/amd64/custom_imports.c
-    "$GUEST_DIR/guest.c"
+    $(find $GUEST_DIR -type f -name "*.c")
     wasi/embedded/wasi.c
 )
 
