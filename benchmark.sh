@@ -10,7 +10,7 @@ echo "Translating WASM to C..."
 
 ./docker/wasm2c-package.sh examples/build-wasm/rust/fibonacci.wasm build/c-packages/fibonacci/
 ./docker/wasm2c-package.sh examples/build-wasm/rust/hello_world.wasm build/c-packages/hello_world/
-MAX_FUNC=10 ./docker/wasm2c-package.sh examples/build-wasm/rust/reva-client-eth.wasm build/c-packages/reva-client-eth/
+./docker/wasm2c-package.sh examples/build-wasm/rust/reva-client-eth.wasm build/c-packages/reva-client-eth/
 
 echo "Compiling C to RISCV..."
 

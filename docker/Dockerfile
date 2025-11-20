@@ -64,6 +64,9 @@ ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:${PATH}"
 
 RUN apt update && apt install -y gcc-riscv64-linux-gnu
 
+RUN apt update && apt install -y clang lld
+RUN apt update && apt install -y libc6-riscv64-cross libgcc-10-dev-riscv64-cross
+
 # Set working directory
 WORKDIR /workspace
 
