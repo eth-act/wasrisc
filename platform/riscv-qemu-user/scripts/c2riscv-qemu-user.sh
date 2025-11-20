@@ -73,11 +73,12 @@ echo "Compiling..."
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    -march=rv64imad
-    -mabi=lp64d
+    --target=riscv64-linux-gnu
+    --sysroot=/usr/riscv64-linux-gnu
+    --gcc-toolchain=/usr
+    -march=rv64gc -mabi=lp64d
     -mcmodel=medany
     -static
-    -flto
     -ffunction-sections
     -fdata-sections
     $OPT_LEVEL
@@ -96,7 +97,7 @@ SOURCES=(
     wasi/embedded/wasi.c
 )
 
-"$DOCKER_DIR/docker-shell.sh" riscv64-linux-gnu-gcc \
+"$DOCKER_DIR/docker-shell.sh" clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
