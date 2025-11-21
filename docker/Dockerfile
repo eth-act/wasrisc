@@ -48,8 +48,21 @@ RUN git clone https://github.com/turbolent/w2c2.git /opt/w2c2 && \
     cd /opt/w2c2/w2c2 && \
     make
 
+RUN apt update && apt install -y git build-essential ninja-build pkg-config libglib2.0-dev libpixman-1-dev
+
+RUN git clone https://git.qemu.org/git/qemu.git && \
+    cd qemu && \
+    ./configure --target-list=riscv64-linux-user --enable-plugins && \
+    make -j4 && \
+    make install && \
+    cp build/tests/tcg/plugins/libinsn.so /libinsn.so && \
+    cd .. && \
+    rm -r qemu
+
 # Add toolchains to PATH
 ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:${PATH}"
+
+RUN apt update && apt install -y gcc-riscv64-linux-gnu
 
 # Set working directory
 WORKDIR /workspace

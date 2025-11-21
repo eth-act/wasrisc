@@ -6,7 +6,7 @@ ENTRY(_start)
 
 /* QEMU virt machine memory map */
 MEMORY {
-    ram (wxa) : ORIGIN = 0x80000000, LENGTH = 128M
+    ram (wxa) : ORIGIN = 0x80000000, LENGTH = 2048M
 }
 
 SECTIONS
@@ -61,11 +61,11 @@ SECTIONS
 
     /* Heap for malloc */
     PROVIDE(_heap_start = .);
-    . = . + 16M;  /* 16MB heap */
+    . = . + 1024M;  /* 1024MB heap */
     PROVIDE(_heap_end = .);
 
     /* Stack grows downward from top of RAM */
-    . = . + 1M;  /* 1MB stack */
+    . = . + 256M;  /* 256MB stack */
     PROVIDE(_stack_top = .);
 
     /* End marker */
