@@ -1,0 +1,3 @@
+[submodule "examples/rust/reva-client-eth"]
+	path = examples/rust/reva-client-eth
+	url = git@github.com:marcinbugaj/reva-wasrisc.git
