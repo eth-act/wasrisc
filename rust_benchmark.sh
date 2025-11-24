@@ -28,19 +28,19 @@ OPT_LEVEL="-O1" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-
 
 echo "Executing with qemu-riscv64"
 
-echo "" > benchmark_results.txt
+echo "" > rust_benchmark_results.txt
 
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/fibonacci.riscv.O0.elf >> benchmark_results.txt 2>&1
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/fibonacci.riscv.O3.elf >> benchmark_results.txt 2>&1
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/rust/fibonacci/target/riscv64gc-unknown-linux-gnu/release/fibonacci >> benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/fibonacci.riscv.O0.elf >> rust_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/fibonacci.riscv.O3.elf >> rust_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/rust/fibonacci/target/riscv64gc-unknown-linux-gnu/release/fibonacci >> rust_benchmark_results.txt 2>&1
 
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/hello_world.riscv.O0.elf >> benchmark_results.txt 2>&1
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/hello_world.riscv.O3.elf >> benchmark_results.txt 2>&1
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/rust/hello_world/target/riscv64gc-unknown-linux-gnu/release/hello_world >> benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/hello_world.riscv.O0.elf >> rust_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/hello_world.riscv.O3.elf >> rust_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/rust/hello_world/target/riscv64gc-unknown-linux-gnu/release/hello_world >> rust_benchmark_results.txt 2>&1
 
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/reva-client-eth.riscv.O0.elf >> benchmark_results.txt 2>&1
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/reva-client-eth.riscv.O1.elf >> benchmark_results.txt 2>&1
-./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/rust/reva-client-eth/target/riscv64gc-unknown-linux-gnu/release/reva-client-eth >> benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/reva-client-eth.riscv.O0.elf >> rust_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so build/bin/reva-client-eth.riscv.O1.elf >> rust_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/rust/reva-client-eth/target/riscv64gc-unknown-linux-gnu/release/reva-client-eth >> rust_benchmark_results.txt 2>&1
 
 echo "Done"
 
