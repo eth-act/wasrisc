@@ -16,7 +16,7 @@ echo ""
 mkdir -p "$BUILD_DIR"
 
 # Find all directories containing go.mod files
-find "$GO_EXAMPLES_DIR" -name "go.mod" -type f | while read -r go_mod; do
+find "$GO_EXAMPLES_DIR" -maxdepth 2 -name "go.mod" -type f | while read -r go_mod; do
     example_dir=$(dirname "$go_mod")
     example_name=$(basename "$example_dir")
     output_wasm="$BUILD_DIR/${example_name}.wasm"

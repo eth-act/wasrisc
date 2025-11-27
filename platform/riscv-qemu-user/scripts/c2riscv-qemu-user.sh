@@ -99,7 +99,7 @@ SOURCES=(
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
-    -o "$OUTPUT" 2>&1
+    -o "$OUTPUT" -lm 2>&1
 
 # Check if compilation succeeded
 if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then

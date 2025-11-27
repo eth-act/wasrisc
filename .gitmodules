@@ -1,3 +1,6 @@
 [submodule "examples/rust/reva-client-eth"]
 	path = examples/rust/reva-client-eth
 	url = git@github.com:marcinbugaj/reva-wasrisc.git
+[submodule "examples/go/stateless/go-ethereum"]
+	path = examples/go/stateless/go-ethereum
+	url = https://github.com/ethereum/go-ethereum.git

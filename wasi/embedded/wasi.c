@@ -1,5 +1,6 @@
 #include "w2c2_base.h"
 #include <stdio.h>
+#include <math.h>
 
 #define TIME_OFFSET            1758880055000000000LL
 #define PSEUDOCLOCK_INCREMENTS                 1e8
@@ -180,4 +181,54 @@ U32 wasi_snapshot_preview1__args_get(void*,U32,U32) {
 U32 wasi_snapshot_preview1__args_sizes_get(void*,U32,U32) {
 	printf("wasi_snapshot_preview1__args_sizes_get\n");
 	return 0;
+}
+
+U32 wasi_snapshot_preview1__fd_pread(void* i, U32 wasiFD, U32 iovecsPointer, U32 iovecsCount, U64 offset, U32 resultPointer) {
+	printf("wasi_snapshot_preview1__fd_pread(wasiFD=%d)\n", wasiFD);
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__path_readlink(void* i, U32 l0, U32 l1, U32 l2, U32 l3, U32 l4, U32 l5) {
+	printf("wasi_snapshot_preview1__path_readlink\n");
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__path_rename(void* i, U32 l0, U32 l1, U32 l2, U32 l3, U32 l4, U32 l5) {
+	printf("wasi_snapshot_preview1__path_rename\n");
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__fd_filestat_get(void* i, U32 wasiFD, U32 resultPointer) {
+	printf("wasi_snapshot_preview1__fd_filestat_get(wasiFD=%d)\n", wasiFD);
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__path_open(void* i, U32 l0, U32 l1, U32 l2, U32 l3, U32 l4, U64 l5, U64 l6, U32 l7, U32 l8) {
+	printf("wasi_snapshot_preview1__path_open\n");
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__path_remove_directory(void* i, U32 l0, U32 l1, U32 l2) {
+	printf("wasi_snapshot_preview1__path_remove_directory\n");
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__fd_sync(void* i, U32 wasiFD) {
+	printf("wasi_snapshot_preview1__fd_sync(wasiFD=%d)\n", wasiFD);
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__path_create_directory(void* i, U32 l0, U32 l1, U32 l2) {
+	printf("wasi_snapshot_preview1__path_create_directory\n");
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__fd_readdir(void* i, U32 wasiFD, U32 bufferPointer, U32 bufferLen, U64 cookie, U32 resultPointer) {
+	printf("wasi_snapshot_preview1__fd_readdir(wasiFD=%d)\n", wasiFD);
+	return WASI_ERRNO_BADF;
+}
+
+U32 wasi_snapshot_preview1__fd_filestat_set_size(void* i, U32 wasiFD, U64 size) {
+	printf("wasi_snapshot_preview1__fd_filestat_set_size(wasiFD=%d, size=%llu)\n", wasiFD, size);
+	return WASI_ERRNO_BADF;
 }
