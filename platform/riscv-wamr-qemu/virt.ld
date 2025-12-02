@@ -1,62 +1,73 @@
+/* Linker script for QEMU RISC-V virt machine */
+
 OUTPUT_FORMAT("elf64-littleriscv")
 OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
-MEMORY
-{
-  RAM (rwx) : ORIGIN = 0x80000000, LENGTH = 64M
+/* QEMU virt machine memory map */
+MEMORY {
+    ram (wxa) : ORIGIN = 0x80000000, LENGTH = 1024M
 }
 
 SECTIONS
 {
-  /* Code section */
-  .text : {
-    *(.text.init)
-    *(.text)
-  } > RAM
+    /* Start of RAM */
+    . = 0x80000000;
 
-  /* Read-only data */
-  .rodata : {
-    *(.rodata)
-  } > RAM
+    /* Code section */
+    .text : {
+        KEEP(*(.text.init))  /* Keep startup code first */
+        *(.text .text.*)
+        *(.gnu.linkonce.t.*)
+    } >ram
 
-  /* Initialized data */
-  .data : {
-    *(.data)
-  } > RAM
-
-  /* Small initialized data */
-  .sdata : {
-    *(.sdata)
-  } > RAM
-
-  /* BSS section with explicit symbols */
-  .bss : {
-    _bss_start = .;  /* Define BSS start symbol */
-    *(.bss)
-    *(COMMON)
+    /* Align to 8 bytes */
     . = ALIGN(8);
-    _bss_end = .;    /* Define BSS end symbol */
-  } > RAM
 
-  /* Small BSS section */
-  .sbss : {
-    _sbss_start = .;
-    *(.sbss)
-    *(.sbss.*)
+    /* Global pointer for efficient access to small data */
+    PROVIDE(__global_pointer$ = . + 0x800);
+
+    /* Read-only data */
+    .rodata : {
+        *(.rodata .rodata.*)
+        *(.gnu.linkonce.r.*)
+    } >ram
+
+    /* Align to 8 bytes */
     . = ALIGN(8);
-    _sbss_end = .;
-  } > RAM
 
-  /* End marker for heap start */
-  . = ALIGN(8);
-  _end = .; /* Heap starts here and grows upwards */
+    /* Initialized data */
+    .data : {
+        *(.data .data.*)
+        *(.sdata .sdata.*)
+        *(.gnu.linkonce.d.*)
+    } >ram
 
-  /* Stack grows downward from the end of RAM */
-  _stack_size = 64K;
-  _stack_top = ORIGIN(RAM) + LENGTH(RAM);
-  _stack_bottom = _stack_top - _stack_size;
+    /* Align to 8 bytes */
+    . = ALIGN(8);
 
-  /* Ensure we don't overlap with heap */
-  ASSERT(_end <= _stack_bottom, "Error: Heap collides with stack")
+    /* Uninitialized data (BSS) */
+    .bss : {
+        PROVIDE(_bss_start = .);
+        *(.bss .bss.*)
+        *(.sbss .sbss.*)
+        *(.gnu.linkonce.b.*)
+        *(COMMON)
+        PROVIDE(_bss_end = .);
+    } >ram
+
+    /* Align to page boundary */
+    . = ALIGN(0x1000);
+
+    /* Heap for malloc */
+    PROVIDE(_heap_start = .);
+    . = . + 512M;  /* 512MB heap */
+    PROVIDE(_heap_end = .);
+
+    /* Stack grows downward from top of RAM */
+    . = . + 128M;  /* 128MB stack */
+    PROVIDE(_stack_top = .);
+
+    /* End marker */
+    PROVIDE(_end = .);
 }

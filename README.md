@@ -97,12 +97,12 @@ qemu-system-riscv64 -machine virt -bios none \
 
 #### QEMU RISC-V WAMR
 ```bash
-./platform/riscv-wamr-qemu/scripts/c2wamr-qemu.sh \
-    examples/build-wasm/tinygo/fibonacci.wasm \
+./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh \
+    examples/build-wasm/go/fibonacci.wasm \
     build/bin/fibonacci.wamr.elf
 
 # Run in QEMU
-qemu-system-riscv64 -machine virt -bios none \
+qemu-system-riscv64 -machine virt -m 1024M -bios none \
     -kernel build/bin/fibonacci.wamr.elf -nographic
 ```
 
