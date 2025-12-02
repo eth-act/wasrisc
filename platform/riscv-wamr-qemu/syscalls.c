@@ -50,14 +50,14 @@ int _isatty(int file) {
 }
 
 void* _sbrk(int incr) {
-    extern char _end;         // Defined by the linker - start of heap
-    extern char _stack_bottom; // Defined in our linker script - bottom of stack area
+    extern char _heap_start;   // Defined by the linker - start of heap
+    extern char _stack_top;    // Defined in our linker script - top of stack area
 
-    static char *heap_end = &_end;
+    static char *heap_end = &_heap_start;
     char *prev_heap_end = heap_end;
 
     // Calculate safe stack limit - stack grows down from _stack_top towards _stack_bottom
-    char *stack_limit = &_stack_bottom;
+    char *stack_limit = &_stack_top;
 
     // Check if heap would grow too close to stack
     if (heap_end + incr > stack_limit) {

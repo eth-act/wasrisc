@@ -174,8 +174,8 @@ if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then
     echo "Size: $SIZE"
     echo ""
     echo "To run in QEMU:"
-    echo "  qemu-system-riscv64 -machine virt -bios none \\"
-    echo "    -kernel $OUTPUT -nographic \\"
+    echo "  qemu-system-riscv64 -machine virt -m 1024M \\"
+    echo "     -bios none -kernel $OUTPUT -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
     echo ""
 else
