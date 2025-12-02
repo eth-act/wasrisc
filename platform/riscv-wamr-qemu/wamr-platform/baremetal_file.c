@@ -48,7 +48,8 @@ __wasi_errno_t
 os_file_get_fdflags(os_file_handle handle, __wasi_fdflags_t *flags)
 {
     printf("os_file_get_fdflags\n");
-    return __WASI_ENOSYS;
+    *flags = 0;
+    return __WASI_ESUCCESS;
 }
 
 __wasi_errno_t
@@ -134,11 +135,14 @@ __wasi_errno_t
 os_writev(os_file_handle handle, const struct __wasi_ciovec_t *iov, int iovcnt,
           size_t *nwritten)
 {
-    printf("os_writev\n");
     ssize_t total_written = 0;
+
     // Write data from each buffer
     for (int i = 0; i < iovcnt; i++) {
-        printf("%s", iov[i].buf);
+        const char *buf = (const char *)iov[i].buf;
+        for (int j = 0; j < iov[i].buf_len; j++) {
+            putchar(buf[j]);
+        }
         total_written += iov[i].buf_len;
     }
 
