@@ -16,7 +16,7 @@ int main(void) {
     wasm_module_inst_t module_inst;
     wasm_function_inst_t func;
     wasm_exec_env_t exec_env;
-    uint32 size, stack_size = 8092, heap_size = 8092;
+    uint32 size, stack_size = 16*1024*1024;
 
     wasm_runtime_set_log_level(WASM_LOG_LEVEL_VERBOSE);
 
@@ -34,7 +34,7 @@ int main(void) {
     }
 
     /* create an instance of the WASM module (WASM linear memory is ready) */
-    module_inst = wasm_runtime_instantiate(module, stack_size, heap_size, error_buf, sizeof(error_buf));
+    module_inst = wasm_runtime_instantiate(module, stack_size, 0, error_buf, sizeof(error_buf));
     if (module_inst == 0) {
         printf("wasm_runtime_instantiate failed as module_inst=%p: %s\n", module_inst, error_buf);
         exit(1);
@@ -42,7 +42,7 @@ int main(void) {
 
     if (!wasm_application_execute_main(module_inst, argc, argv)) {
         printf("error executing main\n");
-        /* TODO: check wasm_runtime_get_exception(..) */
+        printf("exception: %s\n", wasm_runtime_get_exception(module_inst));
     }
 
     printf("wasm_runtime_unload...\n");

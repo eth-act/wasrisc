@@ -66,13 +66,23 @@ fi
 mkdir -p "$(dirname "$OUTPUT")"
 
 echo "======================================"
-echo "C to WAMR RISC-V QEMU Compilation"
+echo "WASM to WAMR RISC-V QEMU Compilation"
 echo "======================================"
 echo "Guest package: $INPUT_WASM"
 echo "Output binary: $OUTPUT"
 echo ""
 
 # Bundle wasm binary within output elf
+#
+# Without --bounds-checks=1 an error
+#
+# runtime: morestack on g0
+#
+# is shown. Enabling it seems to trigger a calculation of
+# the stack boundary
+#
+# https://github.com/bytecodealliance/wasm-micro-runtime/issues/3966
+# https://github.com/bytecodealliance/wasm-micro-runtime/pull/3967
 "$DOCKER_DIR/docker-shell.sh" \
     wamrc --target=riscv64 \
     --target-abi=lp64 \
@@ -80,6 +90,7 @@ echo ""
     --cpu-features='+i,+m,+a' \
     --opt-level=0 \
     --size-level=1 \
+    --bounds-checks=1 \
     -o $OUTPUT.riscv64.wamr $1
 
 gcc platform/riscv-wamr-qemu/file2c/file2c.c \
