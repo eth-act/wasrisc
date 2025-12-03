@@ -95,6 +95,17 @@ qemu-system-riscv64 -machine virt -bios none \
     -kernel build/bin/println.riscv.elf -nographic
 ```
 
+#### QEMU RISC-V WAMR
+```bash
+./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh \
+    examples/build-wasm/go/fibonacci.wasm \
+    build/bin/fibonacci.wamr.elf
+
+# Run in QEMU
+qemu-system-riscv64 -machine virt -m 1024M -bios none \
+    -kernel build/bin/fibonacci.wamr.elf -nographic
+```
+
 ## Examples
 
 All examples below use Go, but the same principles apply to any language that compiles to WASM with WASI support.
