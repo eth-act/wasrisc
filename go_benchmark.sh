@@ -12,7 +12,7 @@ echo "Translating WASM to C..."
 
 echo "Transpiling WASM to CWASM with wasmtime..."
 
-./docker/docker-shell.sh /root/.wasmtime/bin/wasmtime compile examples/build-wasm/go/stateless.wasm -o examples/build-wasm/go/stateless-by-wasmtime/src/stateless.cwasm
+./docker/docker-shell.sh /root/.wasmtime/bin/wasmtime compile --target riscv64gc-unknown-linux-gnu  examples/build-wasm/go/stateless.wasm -o examples/build-wasm/go/stateless-by-wasmtime/src/stateless.cwasm
 
 echo "Compiling C to RISCV..."
 
