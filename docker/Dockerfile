@@ -64,6 +64,8 @@ ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:${PATH}"
 
 RUN apt update && apt install -y gcc-riscv64-linux-gnu
 
+RUN curl https://wasmtime.dev/install.sh -sSf | bash
+
 # Set working directory
 WORKDIR /workspace
 

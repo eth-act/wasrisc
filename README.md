@@ -191,13 +191,19 @@ Conclusions for `fibonacci` and `hello-world`:
 
 # Benchmarks of Go programs
 
-|program|through WASM, -O0| through WASM, optimized|directly|
-|---|---|---|---|
-|`stateless`|12,866,052,519|2,110,574,100 (-O3)|236,265,327|
+Please note that:
+-  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Go direct compilation uses `rv64gc`.
+- `wasmtime` targets rv64gc
+
+|program|through WASM, -O0|through WASM, optimized|though WASM, wasmtme|directly|
+|---|---|---|---|---|
+|`stateless`|12,866,052,519|2,110,574,100 (-O3)|874,758,419|236,265,327|
 
 ## Analysis of the results
 
 `-O3` WASM approach is ~10 times slower than the direct compilation. `-O0` is 6 times slower than `-O3`. These gaps are significantly bigger than for the corresponding gaps for `reva-client-eth` Rust program.
+
+Surprisingly WASM though `wasmtime` is faster than `w2c2`. `wasmtime` approach is ~3-4 times slower than the direct approach.
 
 # Size of binaries
 

@@ -11,7 +11,7 @@ IMAGE_NAME="skunkworks-go-wasm"
 # Build image if it doesn't exist
 if ! docker images "$IMAGE_NAME" | grep -q "$IMAGE_NAME"; then
     echo "Image $IMAGE_NAME not found. Building..."
-    docker build -f "$SCRIPT_DIR/Dockerfile" -t "$IMAGE_NAME" "$PROJECT_ROOT"
+    docker build -f "$SCRIPT_DIR/Dockerfile" -t "$IMAGE_NAME" "$SCRIPT_DIR"
 fi
 
 # Run command in Docker
