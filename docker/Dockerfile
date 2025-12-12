@@ -66,6 +66,9 @@ RUN git clone https://github.com/bytecodealliance/wasm-micro-runtime.git /opt/wa
 COPY platform/riscv-wamr-qemu/wamr-platform/ /opt/wamr/core/shared/platform/zkvm/
 RUN cd /opt/wamr && \
     sed -i "s/find_package(Threads REQUIRED)/find_package(Threads)/g" CMakeLists.txt && \
+    sed -i "/SymbolMap target_sym_map/a REG_SYM(__floatundisf)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
+    sed -i "/SymbolMap target_sym_map/a REG_SYM(__floatdisf)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
+    sed -i "/SymbolMap target_sym_map/a REG_SYM(__ltsf2)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
     cmake . \
         -DWAMR_BUILD_PLATFORM=zkvm \
         -DWAMR_BUILD_TARGET=AOT \
