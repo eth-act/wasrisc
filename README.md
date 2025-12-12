@@ -195,9 +195,9 @@ Please note that:
 -  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Go direct compilation uses `rv64gc`.
 - `wasmtime` targets rv64gc
 
-|program|through WASM, -O0|through WASM, optimized|though WASM, wasmtme|directly|
-|---|---|---|---|---|
-|`stateless`|12,866,052,519|2,110,574,100 (-O3)|874,758,419|236,265,327|
+|program|through WASM, w2c2, -O0|through WASM, w2c2, optimized|though WASM, wasmtme|through WASM, wasmer (cranelift)|directly|
+|---|---|---|---|---|---|
+|`stateless`|12,866,052,519|2,110,574,100 (-O3)|874,758,419|953,874,491|236,265,327|
 
 ## Analysis of the results
 

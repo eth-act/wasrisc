@@ -66,6 +66,8 @@ RUN apt update && apt install -y gcc-riscv64-linux-gnu
 
 RUN curl https://wasmtime.dev/install.sh -sSf | bash
 
+RUN curl https://get.wasmer.io -sSfL | sh
+
 # Set working directory
 WORKDIR /workspace
 
