@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-tomli \
+    python3.10-venv \
     libmpc-dev \
     libmpfr-dev \
     libgmp-dev \
@@ -30,7 +31,10 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-dev \
     libslirp-dev \
     libpthread-stubs0-dev \
-    wget \
+    g++-multilib \
+    libgcc-9-dev \
+    lib32gcc-9-dev \
+    ccache \
     && rm -rf /var/lib/apt/lists/*
 
 # Build RISC-V GNU Toolchain
@@ -62,6 +66,20 @@ RUN git clone https://git.qemu.org/git/qemu.git && \
     rm -r qemu
 
 # Build WAMR with ZKVM platform
+#
+# Some symbols such as __floatundisf, __floatdisf, __ltsf2 need to be
+# explicitly registered for working soft float support on the target
+# platform
+#
+# https://github.com/bytecodealliance/wasm-micro-runtime/issues/418
+# https://github.com/bytecodealliance/wasm-micro-runtime/issues/531
+#
+# Additionally use LLVM 19. Profiling wamrc when compiling a large wasm
+# file like stateful.wasm shows that AttemptToFoldSymbolOffsetDifference
+# consumes most of the compile time. LLVM 19 contains a fix for this
+# though
+#
+# https://github.com/llvm/llvm-project/issues/81440
 RUN git clone https://github.com/bytecodealliance/wasm-micro-runtime.git /opt/wamr
 COPY platform/riscv-wamr-qemu/wamr-platform/ /opt/wamr/core/shared/platform/zkvm/
 RUN cd /opt/wamr && \
@@ -69,6 +87,7 @@ RUN cd /opt/wamr && \
     sed -i "/SymbolMap target_sym_map/a REG_SYM(__floatundisf)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
     sed -i "/SymbolMap target_sym_map/a REG_SYM(__floatdisf)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
     sed -i "/SymbolMap target_sym_map/a REG_SYM(__ltsf2)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
+    sed -i "s/18\.x/19.x/g" build-scripts/build_llvm.py && \
     cmake . \
         -DWAMR_BUILD_PLATFORM=zkvm \
         -DWAMR_BUILD_TARGET=AOT \
@@ -88,16 +107,14 @@ RUN cd /opt/wamr && \
         -DCMAKE_ASM_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-gcc \
         -DWASM_ENABLE_SIMDE=OFF \
         -DWAMR_BUILD_SIMD=0 && \
+    make && \
+    cd /opt/wamr/wamr-compiler && \
+    ./build_llvm.sh && \
+    cmake . && \
     make
 
-# Use pre-compiled wamrc
-RUN wget https://github.com/bytecodealliance/wasm-micro-runtime/releases/download/WAMR-2.4.4/wamrc-2.4.4-x86_64-ubuntu-22.04.tar.gz && \
-    tar xf wamrc-2.4.4-x86_64-ubuntu-22.04.tar.gz && \
-    mv wamrc /usr/local/bin/ && \
-    rm wamrc-2.4.4-x86_64-ubuntu-22.04.tar.gz
-
 # Add toolchains to PATH
-ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:${PATH}"
+ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:/opt/wamr/wamr-compiler:${PATH}"
 
 RUN apt update && apt install -y gcc-riscv64-linux-gnu
 
