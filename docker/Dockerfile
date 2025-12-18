@@ -56,9 +56,16 @@ RUN git clone https://github.com/turbolent/w2c2.git /opt/w2c2 && \
 
 RUN apt update && apt install -y git build-essential ninja-build pkg-config libglib2.0-dev libpixman-1-dev
 
+# Include patch for insn.c because otherwise this error appears due to unknown
+# instructions:
+#
+# ERROR:../tests/tcg/plugins/insn.c:97:vcpu_init: assertion failed: (count > 0)
+#
+# https://lists.gnu.org/archive/html/qemu-discuss/2025-08/msg00001.html
 RUN git clone https://git.qemu.org/git/qemu.git && \
     cd qemu && \
-    ./configure --target-list=riscv64-linux-user --enable-plugins && \
+    sed -i 's/g_assert(count > 0)/g_assert(count >= 0)/g' tests/tcg/plugins/insn.c && \
+    ./configure --target-list=riscv64-linux-user,riscv64-softmmu --enable-plugins && \
     make -j4 && \
     make install && \
     cp build/tests/tcg/plugins/libinsn.so /libinsn.so && \
@@ -74,20 +81,16 @@ RUN git clone https://git.qemu.org/git/qemu.git && \
 # https://github.com/bytecodealliance/wasm-micro-runtime/issues/418
 # https://github.com/bytecodealliance/wasm-micro-runtime/issues/531
 #
-# Additionally use LLVM 19. Profiling wamrc when compiling a large wasm
-# file like stateful.wasm shows that AttemptToFoldSymbolOffsetDifference
+# Additionally use LLVM 20. Profiling wamrc when compiling a large wasm
+# file like stateless.wasm shows that AttemptToFoldSymbolOffsetDifference
 # consumes most of the compile time. LLVM 19 contains a fix for this
-# though
+# though. Also large code model is in principle supported for RISC-V
+# since version 20.
 #
 # https://github.com/llvm/llvm-project/issues/81440
-RUN git clone https://github.com/bytecodealliance/wasm-micro-runtime.git /opt/wamr
-COPY platform/riscv-wamr-qemu/wamr-platform/ /opt/wamr/core/shared/platform/zkvm/
-RUN cd /opt/wamr && \
-    sed -i "s/find_package(Threads REQUIRED)/find_package(Threads)/g" CMakeLists.txt && \
-    sed -i "/SymbolMap target_sym_map/a REG_SYM(__floatundisf)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
-    sed -i "/SymbolMap target_sym_map/a REG_SYM(__floatdisf)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
-    sed -i "/SymbolMap target_sym_map/a REG_SYM(__ltsf2)," core/iwasm/aot/arch/aot_reloc_riscv.c && \
-    sed -i "s/18\.x/19.x/g" build-scripts/build_llvm.py && \
+RUN git clone https://github.com/psilva261/wasm-micro-runtime-zkvm.git /opt/wamr/ && \
+    cd /opt/wamr && \
+    git checkout zkvm && \
     cmake . \
         -DWAMR_BUILD_PLATFORM=zkvm \
         -DWAMR_BUILD_TARGET=AOT \

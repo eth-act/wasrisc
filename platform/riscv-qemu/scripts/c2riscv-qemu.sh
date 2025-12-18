@@ -69,7 +69,7 @@ PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    -march=rv64ima
+    -march=rv64ima_zicsr
     -mabi=lp64
     -mcmodel=medany
     -specs=nosys.specs

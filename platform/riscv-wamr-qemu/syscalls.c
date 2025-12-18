@@ -70,6 +70,6 @@ void* _sbrk(int incr) {
 }
 
 // Required stubs
-void _exit(int code) { while (1); }
+void _exit(int code) {}
 int _kill(int pid, int sig) { return -1; }
 int _getpid(void) { return 1; }

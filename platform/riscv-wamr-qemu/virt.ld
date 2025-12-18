@@ -6,13 +6,13 @@ ENTRY(_start)
 
 /* QEMU virt machine memory map */
 MEMORY {
-    ram (wxa) : ORIGIN = 0x80000000, LENGTH = 1024M
+    ram (wxa) : ORIGIN = 0x80200000, LENGTH = 1024M
 }
 
 SECTIONS
 {
     /* Start of RAM */
-    . = 0x80000000;
+    . = 0x80200000;
 
     /* Code section */
     .text : {

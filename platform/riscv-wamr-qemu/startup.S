@@ -4,7 +4,7 @@
 _start:
     la sp, _stack_top
 
-    # Clear BSS section - using symbols defined in our linker script
+    /* Clear BSS section - using symbols defined in our linker script */
     la t0, _bss_start
     la t1, _bss_end
 clear_bss:
@@ -14,8 +14,14 @@ clear_bss:
     j clear_bss
 bss_done:
 
-    # Jump to C code
+    /* Call main */
     call main
 
-    # In case main returns
-1:  j 1b
+    /* https://github.com/xypron/riscv_test_payload (MIT-licensed) */
+    li a7, 0x53525354   # SBI extension: SRST (System Reset)
+    li a6, 0            # Function: system reset
+    li a0, 0            # Reset type: shutdown
+    li a1, 0            # Reset reason: no reason
+    ecall               # Perform system shutdown
+end:
+    j end

@@ -28,7 +28,8 @@ if [ $# -lt 2 ]; then
     echo "  $0 build/.c-packages/println build/bin/println.riscv.elf"
     echo ""
     echo "To run in QEMU:"
-    echo "  qemu-system-riscv64 -machine virt -bios none \\"
+    echo "  ./docker/docker-shell.sh qemu-system-riscv64 -machine virt \\"
+    echo "    -m 1024M -icount shift=0 -plugin /libinsn.so \\"
     echo "    -kernel build/bin/println.riscv.elf -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
     echo ""
@@ -113,7 +114,7 @@ PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    -march=rv64ima
+    -march=rv64ima_zicsr
     -mabi=lp64
     -mcmodel=medany
     -specs=nosys.specs
@@ -185,8 +186,9 @@ if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then
     echo "Size: $SIZE"
     echo ""
     echo "To run in QEMU:"
-    echo "  qemu-system-riscv64 -machine virt -m 1024M \\"
-    echo "     -bios none -kernel $OUTPUT -nographic \\"
+    echo "  ./docker/docker-shell.sh qemu-system-riscv64 -machine virt \\"
+    echo "    -m 1024M -icount shift=0 -plugin /libinsn.so \\"
+    echo "    -kernel $OUTPUT -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
     echo ""
 else
