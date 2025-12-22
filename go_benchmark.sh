@@ -19,6 +19,10 @@ echo "Transpiling WASM to WASMU with wasmer..."
 # TODO: Cranelift is used for now because LLVM support is buggy. Once LLVM is fixed in wasmer use `--llvm` flag instead of `cranelift`; https://github.com/wasmerio/wasmer/issues/5951#issuecomment-3632904384
 ./docker/docker-shell.sh /root/.wasmer/bin/wasmer compile --cranelift --target riscv64gc-unknown-linux-gnu  examples/build-wasm/go/stateless.wasm -o examples/build-wasm/go/stateless-by-wasmer/src/stateless.wasmu
 
+echo "Transpiling WASM to WAMR AOT with wamrc..."
+
+./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh examples/build-wasm/go/stateless.wasm build/bin/stateless.wamr.elf
+
 echo "Compiling C to RISCV..."
 
 OPT_LEVEL="-O0" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/stateless/ build/bin/stateless.riscv.O0.elf
@@ -36,6 +40,7 @@ echo "" > go_benchmark_results.txt
 ./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/go/stateless/stateless >> go_benchmark_results.txt 2>&1
 ./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/build-wasm/go/stateless-by-wasmtime/target/riscv64gc-unknown-linux-gnu/release/standalone >> go_benchmark_results.txt 2>&1
 ./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/build-wasm/go/stateless-by-wasmer/target/riscv64gc-unknown-linux-gnu/release/standalone >> go_benchmark_results.txt 2>&1
+./docker/docker-shell.sh qemu-system-riscv64 -d plugin -machine virt -m 1024M -plugin /libinsn.so -kernel build/bin/stateless.wamr.elf -nographic >> go_benchmark_results.txt 2>&1
 
 echo "Done"
 

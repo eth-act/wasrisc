@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-#set -x ## TODO : remove debug
-
-# c2riscv-wamr-qemu - Compile WASM to WAMR RISC-V QEMU binary
-# Usage: ./platform/riscv-wamr-qemu/scripts/c2riscv-wamr-qemu.sh <guest-c-package-dir> <output-elf>
+# wasm2riscv-wamr-qemu - Compile WASM to WAMR RISC-V QEMU binary
+# Usage: ./platform/riscv-wamr-qemu/scripts/wasm2riscv-wamr-qemu.sh <guest-c-package-dir> <output-elf>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WAMR_QEMU_DIR="$(dirname "$SCRIPT_DIR")"
@@ -29,7 +27,7 @@ if [ $# -lt 2 ]; then
     echo ""
     echo "To run in QEMU:"
     echo "  ./docker/docker-shell.sh qemu-system-riscv64 -machine virt \\"
-    echo "    -m 1024M -icount shift=0 -plugin /libinsn.so \\"
+    echo "    -m 1024M -d plugin -plugin /libinsn.so \\"
     echo "    -kernel build/bin/println.riscv.elf -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
     echo ""
@@ -114,7 +112,7 @@ PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    -march=rv64ima_zicsr
+    -march=rv64ima
     -mabi=lp64
     -mcmodel=medany
     -specs=nosys.specs
@@ -187,7 +185,7 @@ if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then
     echo ""
     echo "To run in QEMU:"
     echo "  ./docker/docker-shell.sh qemu-system-riscv64 -machine virt \\"
-    echo "    -m 1024M -icount shift=0 -plugin /libinsn.so \\"
+    echo "    -m 1024M -d plugin -plugin /libinsn.so \\"
     echo "    -kernel $OUTPUT -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
     echo ""
