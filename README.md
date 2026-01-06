@@ -85,6 +85,7 @@ ziskemu -e build/bin/println.zkvm.elf
 ```
 
 #### QEMU RISC-V
+
 ```bash
 ./platform/riscv-qemu/scripts/c2riscv-qemu.sh \
     build/c-packages/println \
@@ -93,6 +94,21 @@ ziskemu -e build/bin/println.zkvm.elf
 # Run in QEMU
 qemu-system-riscv64 -machine virt -bios none \
     -kernel build/bin/println.riscv.elf -nographic
+```
+
+#### QEMU RISC-V WAMR
+
+Include OpenSBI BIOS (`-bios default` instead of `-bios none`) such that a shutdown function is present for improved benchmarking.
+
+```bash
+./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh \
+    examples/build-wasm/go/fibonacci.wasm \
+    build/bin/fibonacci.wamr.elf
+
+# Run in QEMU
+./docker/docker-shell.sh qemu-system-riscv64 -machine virt -m 1024M \
+    -kernel build/bin/fibonacci.wamr.elf -nographic -d plugin \
+    -plugin /libinsn.so
 ```
 
 ## Examples
@@ -183,9 +199,9 @@ Please note that:
 -  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Go direct compilation uses `rv64gc`.
 - `wasmtime` targets rv64gc
 
-|program|through WASM, w2c2, -O0|through WASM, w2c2, optimized|though WASM, wasmtime|through WASM, wasmer (cranelift)|directly|
+|program|through WASM, w2c2, -O0|through WASM, w2c2, optimized|through WAMR, -O0|though WASM, wasmtme|through WASM, wasmer (cranelift)|directly|
 |---|---|---|---|---|---|
-|`stateless`|12,866,052,519|2,110,574,100 (-O3)|874,758,419|953,874,491|236,265,327|
+|`stateless`|12,866,052,519|2,110,574,100 (-O3)|5,427,433,654|874,758,419|953,874,491|236,265,327|
 
 ## Analysis of the results
 
@@ -205,6 +221,8 @@ Conclusions for `fibonacci` and `hello-world`:
 `-O3` WASM approach is ~10 times slower than the direct compilation. `-O0` is 6 times slower than `-O3`. These gaps are significantly bigger than for the corresponding gaps for `reva-client-eth` Rust program.
 
 Surprisingly WASM though `wasmtime` is faster than `w2c2`. `wasmtime` approach is ~3-4 times slower than the direct approach.
+
+Unoptimized WAMR AOT is currently in between `w2c2` and wasmtime. Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error. https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
 
 ### Other observations
 
