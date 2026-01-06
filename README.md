@@ -165,7 +165,7 @@ The benchmark presents the number of instructions executed for a program compile
 The number of cycles was measured by using libinsn qemu plugin.
 
 
-|program|through WASM, -O0| through WASM, optimized|directly|
+|program|through WASM, -O0| through WASM, optimized|though WASM, wasmtime|through WASM, wasmer (cranelift)directly|
 |---|---|---|---|
 |`reva-client-eth`|7,887,190,279|1,419,050,123 (-O1)|388,564,723|
 |`fibonacci`|1,033,748|167,179 (-O3)|427,110|
@@ -195,7 +195,7 @@ Please note that:
 -  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Go direct compilation uses `rv64gc`.
 - `wasmtime` targets rv64gc
 
-|program|through WASM, w2c2, -O0|through WASM, w2c2, optimized|though WASM, wasmtme|through WASM, wasmer (cranelift)|directly|
+|program|through WASM, w2c2, -O0|through WASM, w2c2, optimized|though WASM, wasmtime|through WASM, wasmer (cranelift)|directly|
 |---|---|---|---|---|---|
 |`stateless`|12,866,052,519|2,110,574,100 (-O3)|874,758,419|953,874,491|236,265,327|
 

@@ -1,0 +1,9 @@
+[package]
+name = "standalone"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+wasmtime = "39.0"
+wasmtime-wasi = "39.0"
+anyhow = "1.0"
