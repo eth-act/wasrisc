@@ -165,29 +165,17 @@ The benchmark presents the number of instructions executed for a program compile
 The number of cycles was measured by using libinsn qemu plugin.
 
 
-|program|through WASM, -O0| through WASM, optimized|though WASM, wasmtime|through WASM, wasmer (cranelift)directly|
-|---|---|---|---|
-|`reva-client-eth`|7,887,190,279|1,419,050,123 (-O1)|388,564,723|
-|`fibonacci`|1,033,748|167,179 (-O3)|427,110|
-|`hello-world`|42,819|20,634 (-O3)|211,591|
+|program|through WASM, -O0| through WASM, optimized|through WASM, wasmtime|through WASM, wasmer (cranelift)|directly|
+|---|---|---|---|---|---|
+|`reva-client-eth`|7,887,190,279|1,419,050,123 (-O1)|1,074,488,397|doesn't work|388,564,723|
+|`fibonacci`|1,033,748|167,179 (-O3)|-|-|427,110|
+|`hello-world`|42,819|20,634 (-O3)|-|-|211,591|
 
 Please note that:
 -  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Rust direct compilation uses `rv64gc`.
 - the programs could have been compiled for `qemu-system-riscv64` but direct compilation from Rust to baremetal would be more difficult.
 
 These are not expected to affect the benchmark results in a significant way.
-
-## Analysis of the results
-
-Conclusions for `reva-client-eth`:
-- the direct build is the fastest
-- gcc optimization levels matter a lot
-- unoptimized WASM is 20 times slower than the direct build
-- `-O1` build is 3.6 times slower than the direct build
-- `-O3` build improves on that a little bit - see the "gcc bug"
-
-Conclusions for `fibonacci` and `hello-world`:
-- surprisingly optimized WAS build is faster than the direct build
 
 # Benchmarks of Go programs
 
@@ -201,9 +189,26 @@ Please note that:
 
 ## Analysis of the results
 
+### Rust results
+
+Conclusions for `reva-client-eth`:
+- the direct build is the fastest
+- gcc optimization levels matter a lot
+- unoptimized WASM is 20 times slower than the direct build
+- `-O1` build is 3.6 times slower than the direct build
+- `-O3` build improves on that a little bit - see the "gcc bug"
+
+Conclusions for `fibonacci` and `hello-world`:
+- surprisingly optimized WAS build is faster than the direct build
+
+### Go results
 `-O3` WASM approach is ~10 times slower than the direct compilation. `-O0` is 6 times slower than `-O3`. These gaps are significantly bigger than for the corresponding gaps for `reva-client-eth` Rust program.
 
 Surprisingly WASM though `wasmtime` is faster than `w2c2`. `wasmtime` approach is ~3-4 times slower than the direct approach.
+
+### Other observations
+
+`cranelift` (used by `wasmtime` and `wasmer`) proved to be the fastest runtime for Ethereum client programs written in Go and Rust. When running via `wasmtime`, execution required 2.7× more steps than native compilation for Rust and 4.0× for Go. This suggests the Go compiler may generate less efficient WASM bytecode than the Rust compiler, though the difference between the two ratios is significantly smaller than initially expected.
 
 # Size of binaries
 
