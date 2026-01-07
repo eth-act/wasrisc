@@ -12,11 +12,20 @@ graph TD;
 source_code["Source Code<br/>Go, Rust, C, Zig, etc."]
 wasm["WebAssembly<br/>with WASI (wasip1)"]
 c_source_code["C Source Code"]
-target_binary["Target Binary<br>zkVM/RISC-V/AMD64"]
+
+subgraph targets[" "]
+    zkvm_target_binary["Target Binary<br/>RISCV zkVM"]
+    linux_target_binary["Target Binary<br/>RISC-V/AMD64 Linux"]
+end
 
 source_code -->|"Language-specific<br/>WASM compiler"| wasm
 wasm -->|"w2c2 transpiler"| c_source_code
-c_source_code -->|"GCC/platform-specific<br/>compiler"| target_binary
+c_source_code -->|"GCC/platform-specific<br/>compiler"| zkvm_target_binary
+wasm -->|"WAMR<br/>llvm backend"| zkvm_target_binary
+wasm -->|"wasmtime<br/>cranelift backend"| linux_target_binary
+wasm -->|"wasmer<br/>cranelift backend"| linux_target_binary
+
+classDef subgraphStyle fill:none,stroke:none;
 ```
 
 
