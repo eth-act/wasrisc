@@ -6,15 +6,19 @@ Note: Any language that compiles to WASM with WASI support(0.1) can use this pip
 
 ## Pipeline Overview
 
+```mermaid
+graph TD;
+
+source_code["Source Code<br/>Go, Rust, C, Zig, etc."]
+wasm["WebAssembly<br/>with WASI (wasip1)"]
+c_source_code["C Source Code"]
+target_binary["Target Binary<br>zkVM/RISC-V/AMD64"]
+
+source_code -->|"Language-specific<br/>WASM compiler"| wasm
+wasm -->|"w2c2 transpiler"| c_source_code
+c_source_code -->|"GCC/platform-specific<br/>compiler"| target_binary
 ```
-Source Code (Go, Rust, C, Zig, etc.)
-    ↓ (Language-specific WASM compiler)
-WebAssembly with WASI (wasip1)
-    ↓ (w2c2 transpiler)
-C Source Code
-    ↓ (GCC/platform-specific compiler)
-Target Binary (zkVM/RISC-V/AMD64)
-```
+
 
 ## Prerequisites
 
