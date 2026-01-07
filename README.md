@@ -200,7 +200,7 @@ Please note that:
 - `wasmtime` targets rv64gc
 
 |program|through WASM, w2c2, -O0|through WASM, w2c2, optimized|through WAMR, -O0|though WASM, wasmtme|through WASM, wasmer (cranelift)|directly|
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 |`stateless`|12,866,052,519|2,110,574,100 (-O3)|5,427,433,654|874,758,419|953,874,491|236,265,327|
 
 ## Analysis of the results
