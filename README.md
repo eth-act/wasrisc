@@ -1,22 +1,22 @@
 # WASRISC
 
-The goal of this repository is to demostrate and benchmark different compilation methods of high level languages to RISCV64IM(target of RISCV zkVMs) via WASM-WASI as an intermediate step.
+This repository demonstrates and benchmarks different compilation methods for translating high-level languages to RISCV64IM (the target architecture for RISCV zkVMs) using WASM-WASI as an intermediate representation.
 
-In this experiment we also want to know the impact on performance of using WASM-WASI as an intermediate step as compared to direct compilation from a high level language to RISCV64IM.
+This experiment measures the performance impact of using WASM-WASI as an intermediate step compared to direct compilation from high-level languages to RISCV64IM.
 
-Note: Any language that compiles to WASM with WASI support(0.1) can use these pipelines but the main focus is on Go and Rust.
+**Note:** While any language that compiles to WASM with WASI support (0.1) can use these pipelines, this project focuses primarily on Go and Rust.
 
 ## Pipeline Overview
 
-The common step in the pipelines is the compilation from a high level language to a WASM-WASI. WASM target is supported by compilers of most high level languages.
+All pipelines share a common first step: compiling high-level source code to WASM-WASI. Most modern language compilers support WASM as a target.
 
-The transition from WASM to zkVM target can be achieved in many ways. 3 compilation methods were pursued in this experiment:
-1. compilation of WASM to C source code with `w2c2` compiler and then compilation of C source code to the final target with `gcc` or a platform specific compiler
-2. compilation of WASM to the final target with WAMR (LLVM backend)
-3. compilation of WASM to Linux (either host or RISCV64) with `wasmtime` or `wasmer` (both utilizing `cranelift` for code generation)
+The transition from WASM to the zkVM target can be achieved through multiple approaches. This experiment explores three compilation methods:
 
-For the 3rd approach Linux was the target because Linux was supported out of the box and porting to a bare-metal platform would be a significant effort. For the purpose of benchmarking of the Ethereum state transition function that discrepancy is not expected to matter much because of minimal OS interaction and lack of floating point operations usage in the code being benchmark.
+1. **w2c2 + GCC**: Transpile WASM to C source code using the `w2c2` compiler, then compile the C code to the final target using `gcc` or a platform-specific compiler
+2. **WAMR (LLVM)**: Compile WASM directly to the final target using WAMR's LLVM backend
+3. **wasmtime/wasmer (Cranelift)**: Compile WASM to Linux (either host or RISCV64) using `wasmtime` or `wasmer`, both of which use Cranelift for code generation
 
+For the third approach, we targeted Linux because it's supported out of the box—porting to bare-metal would require significant additional effort. For benchmarking the Ethereum state transition function, this difference shouldn't significantly affect results due to minimal OS interaction and the absence of floating-point operations in the benchmark code.
 
 ```mermaid
 graph TD;
@@ -40,82 +40,84 @@ wasm -->|"wasmer<br/>cranelift backend"| linux_target_binary
 classDef subgraphStyle fill:none,stroke:none;
 ```
 
-
 ## Prerequisites
 
-The enviroment for running the benchmarks is dockerized. Docker includes:
+The benchmark environment is dockerized and includes:
 - RISC-V GNU Toolchain with newlib (rv64ima)
 - w2c2 WebAssembly-to-C transpiler
-- qemu with with `libinsn` plugin
+- QEMU with `libinsn` plugin
 - WAMR
 - wasmtime
 - wasmer
 
-> Running the docker script the first time, will take some time because it is rebuilding the RISCV gnu toolchain from source inside of Docker.
+> **Note:** The first time you run the Docker script, it will take some time as it rebuilds the RISC-V GNU toolchain from source.
 
-Regardless of using docker install on host:
+In addition to Docker, install the following on your host system:
 - Rust
 - Rust wasip1 target:
-```
-rustup target add wasm32-wasip1
-```
-- Rust RISCV target:
-```
-rustup target add riscv64gc-unknown-linux-gnu
-```
+  ```bash
+  rustup target add wasm32-wasip1
+  ```
+- Rust RISC-V target:
+  ```bash
+  rustup target add riscv64gc-unknown-linux-gnu
+  ```
 
 ## Quick Start
 
-Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different compilation methods for the Ethereum state transition function. These scripts:
+Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different compilation methods for the Ethereum state transition function. These scripts will:
 
 1. Compile Rust and Go implementations using various methods
 2. Execute the compiled binaries under QEMU with the `libinsn` plugin to count instructions
-3. Save the instruction counts for each compilation method to `go_benchmark_results.txt` and `rust_benchmark_results.txt` (see "total insns" in those files)
+3. Save instruction counts for each compilation method to `go_benchmark_results.txt` and `rust_benchmark_results.txt` (see "total insns" in those files)
 
-See the scripts themselves for implementation details.
+See the scripts for implementation details.
 
-## Benchmark
+## Benchmark Configurations
 
-Following benchmarks have been performed:
-- `w2c2 -O0` - WASM is compiled to C with `w2c2`; then C sources are compiled with gcc with optimization "-O0" for Linux `rv64imad`
-- `w2c2 optimized` - WASM is compiled to C with `w2c2`; then C sources are compiled with gcc with non zero optimization for Linux `rv64imad`
-- `directly`:
-  - for Rust: `cargo build --target riscv64gc-unknown-linux-gnu --release`
-  - for Go: `GOOS=linux GOARCH=riscv64 go build`
-- `wasmtime` - WASM is compiled with `wasmtime` using Cranelift code generation backend to a `riscv64gc` precompiled ".cwasm" file; the latter is then executed using the `wasmtime` runtime on Linux
-- `wasmer (cranelift)` -  WASM is compiled with by `wasmer` using Cranelift code generation backend to a `riscv64gc` precompiled ".wasmu" file; the latter is then executed using the `wasmer` runtime on Linux
-- `wamr -O0` - WASM is compiled by `wamr` using LLVM code generation backend with optimization -O0 for bare metal `riscv64ima`
+The following benchmarks were performed:
 
-Following critical benchmarks have not yet been performed because of issues in `wasmer` and `wamr`:
-- `wasmer (llvm)` -  WASM is compiled with by `wasmer` using LLVM code generation backend to a `riscv64gc` precompiled ".wasmu" file; the latter is then executed using the `wasmer` runtime on Linux
-- `wamr -O3` - WASM is compiled by `wamr` using LLVM code generation backend with optimization -O3 for bare metal `riscv64ima`
+- **w2c2 -O0**: WASM transpiled to C with `w2c2`, then compiled with GCC using `-O0` optimization for Linux `rv64imad`
+- **w2c2 optimized**: WASM transpiled to C with `w2c2`, then compiled with GCC using higher optimization levels for Linux `rv64imad`
+- **directly**:
+  - Rust: `cargo build --target riscv64gc-unknown-linux-gnu --release`
+  - Go: `GOOS=linux GOARCH=riscv64 go build`
+- **wasmtime**: WASM compiled with `wasmtime` using Cranelift backend to a `riscv64gc` precompiled ".cwasm" file, then executed using the `wasmtime` runtime on Linux
+- **wasmer (cranelift)**: WASM compiled with `wasmer` using Cranelift backend to a `riscv64gc` precompiled ".wasmu" file, then executed using the `wasmer` runtime on Linux
+- **wamr -O0**: WASM compiled with `wamr` using LLVM backend with `-O0` optimization for bare-metal `riscv64ima`
 
-These issues are described in more detailed in "Issues" section.
+The following critical benchmarks could not yet be performed due to issues in `wasmer` and `wamr`:
 
-## Benchmark results
+- **wasmer (llvm)**: WASM compiled with `wasmer` using LLVM backend to a `riscv64gc` precompiled ".wasmu" file, then executed using the `wasmer` runtime on Linux
+- **wamr -O3**: WASM compiled with `wamr` using LLVM backend with `-O3` optimization for bare-metal `riscv64ima`
 
-|program|w2c2<br>-O0|w2c2<br>optimized|wasmtime|wasmer<br>(cranelift)|wasmer<br>(llvm)|WAMR<br>-O0|WAMR<br>-O3|directly|
+See the "Known Issues" section for details.
+
+## Benchmark Results
+
+| Program | w2c2<br>-O0 | w2c2<br>optimized | wasmtime | wasmer<br>(cranelift) | wasmer<br>(llvm) | WAMR<br>-O0 | WAMR<br>-O3 | directly |
 |---|---|---|---|---|---|---|---|---|
-|`reva-client-eth` (rust)|7,887,190,279|1,419,050,123<br>-O1|1,074,488,397|doesn't work|?|didn't check|?|388,564,723|
-|`stateless`(go)|12,866,052,519|2,110,574,100<br>-O3|874,758,419|953,874,491|?|5,427,433,654|?|236,265,327|
+| `reva-client-eth` (Rust) | 7,887,190,279 | 1,419,050,123<br>(-O1) | 1,074,488,397 | doesn't work | ? | didn't check | ? | 388,564,723 |
+| `stateless` (Go) | 12,866,052,519 | 2,110,574,100<br>(-O3) | 874,758,419 | 953,874,491 | ? | 5,427,433,654 | ? | 236,265,327 |
 
-## Analysis of the results
+## Analysis
 
-Please note that `reva-client-eth` and `stateless` numbers shall not be compared against each other. These two implementations are executed against a different block and with a different block serialization framework.
+**Important:** The `reva-client-eth` and `stateless` numbers should not be compared directly against each other, as these implementations execute against different blocks using different block serialization frameworks.
 
-Unfortunatelly due to some issues we were not able to benchmark the most promising approaches: `wasmer (llvm)` and `wamr -O3`. The analysis is based only on available benchmark results.
+Unfortunately, we were unable to benchmark the most promising approaches (`wasmer (llvm)` and `wamr -O3`) due to outstanding issues. The following analysis is based on available results only.
 
-Conclusions:
-- not suprisingly the direct compilation method is the fastest
-- for `w2c2` the optimizations used for gcc are critical giving 6x speedup compared to non-optimized "-O0" builds
-- pipelines based on `cranelift` have the best performance
-- the ratio of the number instructions instructions required to do the computation when program is compiled via `wasmtime` and directly is:
-  - 2.8 for `reva-client-eth`
-  - 3.7 for `stateless`
-- from the above one can conclude that the quality of WASM generated by Go compiler is not much worse than the quality of WASM generated by Rust compiler
-- `wamr -O0`is currently in between `w2c2` and `wasmtime`
+### Key Findings
 
-### Size of binaries
+- **Direct compilation is fastest**: As expected, compiling directly to the target architecture provides the best performance
+- **Optimization level is critical for w2c2**: Using GCC optimization flags provides a 6x speedup compared to unoptimized `-O0` builds
+- **Cranelift-based pipelines perform best**: Among the WASM-based approaches, pipelines using Cranelift for code generation show the best performance
+- **Performance overhead of WASM intermediate step**: The ratio of instructions required when compiling via `wasmtime` versus direct compilation is:
+  - 2.8x for `reva-client-eth` (Rust)
+  - 3.7x for `stateless` (Go)
+- **WASM quality comparison**: The relatively similar overhead ratios suggest that Go's WASM compiler generates code quality comparable to Rust's WASM compiler
+- **WAMR -O0 performance**: Currently falls between `w2c2` and `wasmtime` in terms of instruction count
+
+### Binary Sizes
 
 ```
 $ ls -lah build/bin/
@@ -133,41 +135,48 @@ $ ls -lah build/bin/
 64M  stateless.riscv.O3.elf
 ```
 
-## Issues
+## Known Issues
 
-### `wamr -O3` bug
-Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error. https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
+### WAMR -O3 Bug
 
-### `wasmer (llvm)` bug
+Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error.
+Issue: https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
 
-https://github.com/wasmerio/wasmer/issues/5954
-https://github.com/wasmerio/wasmer/issues/5951
+### Wasmer (LLVM) Bug
 
-`wasmer` team's been actively working on fixing RISCV target.
+The wasmer team is actively working on fixing RISC-V target support.
+Issues:
+- https://github.com/wasmerio/wasmer/issues/5954
+- https://github.com/wasmerio/wasmer/issues/5951
 
-### gcc bug
+### GCC Bug
 
-The `w2c2 optimized` compilation pipeline for `reva-client-eth` uses the `-O1` optimization level. Using higher optimization leads to non-terminating compilation. It was confirmed that it's a gcc bug. That conclusion was drawn by the following observations:
-- clang is able to compile the same sources
-- w2c2 was provided with `-f 100` option that results in splitting into many source files; then gcc was stuck at compilation of a single file with ~1000LOC
+The `w2c2 optimized` pipeline for `reva-client-eth` uses the `-O1` optimization level. Higher optimization levels cause GCC to hang during compilation. This has been confirmed as a GCC bug based on the following observations:
+- Clang successfully compiles the same sources
+- When w2c2 is invoked with the `-f 100` option (which splits output into many source files), GCC hangs while compiling a single ~1000 LOC file
 
-`reva-client-eth` compiled with `clang` with `-O3` optimization level requires 1.2e9 instructions to execute. That's not much less than when compiled with `gcc` with `-O1` that requires 1.4e9 instructions.
+For reference, `reva-client-eth` compiled with Clang using `-O3` requires 1.2×10⁹ instructions to execute—not significantly fewer than when compiled with GCC using `-O1` (1.4×10⁹ instructions).
 
-### linking problem
+### Linking Problem
 
-The `w2c2 optimized` compilation pipeline for `stateless` program won't link if the optimization level is non-zero. The error is:
+The `w2c2 optimized` pipeline for the `stateless` program fails to link when using non-zero optimization levels, producing the error:
+
 ```
 guest.c:(.text.guestInitMemories+0x50): relocation truncated to fit: R_RISCV_JAL against `.L214'
 collect2: error: ld returned 1 exit status
 ```
 
-The culprit is a single huge function `guestInitMemories` that spans over 100,000 LOC in C as generated by w2c2 for `stateless`. GCC emits `R_RISCV_JAL` for intra-function branches which can refer to ±1MB PC relative. GCC has no fallback mechanism to automatically use AUIPC+JALR for out-of-range intra-function jumps when optimization creates the problem. More specifically, a flag `-fno-reorder-blocks` can be used to disable optimization that leads to large jumps. With that flag `stateless` can be build with `-O3` optimization level.
+The issue stems from a single massive function `guestInitMemories` spanning over 100,000 lines of C code generated by w2c2 for `stateless`. GCC emits `R_RISCV_JAL` relocation for intra-function branches, which support only ±1MB PC-relative jumps. GCC lacks a fallback mechanism to automatically use AUIPC+JALR for out-of-range intra-function jumps when optimization creates this problem.
 
-The issue with large intra-function jumps is not present on x86 because on that platform relative jumps can be 32-bit.
+**Workaround:** Use the `-fno-reorder-blocks` flag to disable the optimization that creates large jumps. With this flag, `stateless` can be built with `-O3` optimization.
 
-### Compilation times
+**Note:** This issue doesn't occur on x86 because that platform supports 32-bit relative jumps.
 
-For higher optimization levels (e.g. `-O3`) one can expect compilation times of `reva-client-eth` and `stateless` up to 60 minutes.
+### Compilation Times
+
+For higher optimization levels (e.g., `-O3`), expect compilation times of up to 60 minutes for `reva-client-eth` and `stateless`.
+
+## Advanced Usage
 
 ### Custom WASM Imports
 
@@ -192,6 +201,7 @@ func main() {
 ```
 
 Implement the import in `platform/*/custom_imports.c`:
+
 ```c
 // platform/amd64/custom_imports.c
 U32 testmodule__testfunc(void* p, U32 a, U32 b) {
@@ -203,6 +213,7 @@ U32 testmodule__testfunc(void* p, U32 a, U32 b) {
 ### Memory Limits
 
 For embedded targets with limited memory, use `debug.SetMemoryLimit()`:
+
 ```go
 import "runtime/debug"
 
