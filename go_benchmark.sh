@@ -40,6 +40,8 @@ echo "" > go_benchmark_results.txt
 ./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/go/stateless/stateless >> go_benchmark_results.txt 2>&1
 ./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/build-wasm/go/stateless-by-wasmtime/target/riscv64gc-unknown-linux-gnu/release/standalone >> go_benchmark_results.txt 2>&1
 ./docker/docker-shell.sh qemu-riscv64 -plugin /libinsn.so examples/build-wasm/go/stateless-by-wasmer/target/riscv64gc-unknown-linux-gnu/release/standalone >> go_benchmark_results.txt 2>&1
+
+# Include OpenSBI BIOS (-bios default instead of -bios none) such that a shutdown function is present for improved benchmarking.
 ./docker/docker-shell.sh qemu-system-riscv64 -d plugin -machine virt -m 1024M -plugin /libinsn.so -kernel build/bin/stateless.wamr.elf -nographic >> go_benchmark_results.txt 2>&1
 
 echo "Done"

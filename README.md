@@ -127,8 +127,6 @@ qemu-system-riscv64 -machine virt -bios none \
 
 #### QEMU RISC-V WAMR
 
-Include OpenSBI BIOS (`-bios default` instead of `-bios none`) such that a shutdown function is present for improved benchmarking.
-
 ```bash
 ./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh \
     examples/build-wasm/go/fibonacci.wasm \
