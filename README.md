@@ -4,19 +4,18 @@ The goal of this repository is to demostrate and benchmark different compilation
 
 In this experiment we also want to know the impact on performance of using WASM-WASI as an intermediate step as compared to direct compilation from a high level language to RISCV64IM.
 
-Note: Any language that compiles to WASM with WASI support(0.1) can use these pipelinelines but the main focus is on Go and Rust.
+Note: Any language that compiles to WASM with WASI support(0.1) can use these pipelines but the main focus is on Go and Rust.
 
 ## Pipeline Overview
 
-The common step is the compilation from a high level language to a WASM-WASI. WASM target is supported by compilers of most high level languages.
+The common step in the pipelines is the compilation from a high level language to a WASM-WASI. WASM target is supported by compilers of most high level languages.
 
 The transition from WASM to zkVM target can be achieved in many ways. 3 compilation methods were pursued in this experiment:
 1. compilation of WASM to C source code with `w2c2` compiler and then compilation of C source code to the final target with `gcc` or a platform specific compiler
 2. compilation of WASM to the final target with WAMR (LLVM backend)
 3. compilation of WASM to Linux (either host or RISCV64) with `wasmtime` or `wasmer` (both utilizing `cranelift` for code generation)
 
-
-For the 3rd approach Linux was the target because Linux was supported out of the box and porting to a bare-metal platform would be a significant effort. For the purpose of benchmarking of the Ethereum state transition function that discrepancy didn't matter because of minimal OS interaction and lack of floating point operations usage in the function being benchmark.
+For the 3rd approach Linux was the target because Linux was supported out of the box and porting to a bare-metal platform would be a significant effort. For the purpose of benchmarking of the Ethereum state transition function that discrepancy is not expected to matter much because of minimal OS interaction and lack of floating point operations usage in the code being benchmark.
 
 
 ```mermaid
@@ -75,47 +74,46 @@ Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different c
 
 See the scripts themselves for implementation details.
 
-## Benchmarks
+## Benchmark
 
-The benchmark presents the number of instructions executed for a program compiled with various methods:
+Following benchmarks have been performed:
 - `w2c2 -O0` - WASM is compiled to C with `w2c2`; then C sources are compiled with gcc with optimization "-O0" for Linux `rv64imad`
 - `w2c2 optimized` - WASM is compiled to C with `w2c2`; then C sources are compiled with gcc with non zero optimization for Linux `rv64imad`
 - `directly`:
   - for Rust: `cargo build --target riscv64gc-unknown-linux-gnu --release`
   - for Go: `GOOS=linux GOARCH=riscv64 go build`
 - `wasmtime` - WASM is compiled with `wasmtime` using Cranelift code generation backend to a `riscv64gc` precompiled ".cwasm" file; the latter is then executed using the `wasmtime` runtime on Linux
-- `wasmer` -  WASM is compiled with by `wasmer` using Cranelift code generation backend to a `riscv64gc` precompiled ".wasmu" file; the latter is then executed using the `wasmer` runtime on Linux
-- `wamr` - WASM is compiled by `wamr` using LLVM code generation backend with optimization -O0 for bare metal `riscv64ima`
+- `wasmer (cranelift)` -  WASM is compiled with by `wasmer` using Cranelift code generation backend to a `riscv64gc` precompiled ".wasmu" file; the latter is then executed using the `wasmer` runtime on Linux
+- `wamr -O0` - WASM is compiled by `wamr` using LLVM code generation backend with optimization -O0 for bare metal `riscv64ima`
 
-|program|w2c2<br>-O0|w2c2<br>optimized|wasmtime|wasmer<br>(cranelift)|WAMR<br>-O0|directly|
-|---|---|---|---|---|---|---|
-|`reva-client-eth`|7,887,190,279|1,419,050,123<br>-O1|1,074,488,397|doesn't work|didn't check|388,564,723|
-|`stateless`|12,866,052,519|2,110,574,100<br>-O3|874,758,419|953,874,491|5,427,433,654|236,265,327|
+Following critical benchmarks have not yet been performed because of issues in `wasmer` and `wamr`:
+- `wasmer (llvm)` -  WASM is compiled with by `wasmer` using LLVM code generation backend to a `riscv64gc` precompiled ".wasmu" file; the latter is then executed using the `wasmer` runtime on Linux
+- `wamr -O3` - WASM is compiled by `wamr` using LLVM code generation backend with optimization -O3 for bare metal `riscv64ima`
+
+These issues are described in more detailed in "Issues" section.
+
+## Benchmark results
+
+|program|w2c2<br>-O0|w2c2<br>optimized|wasmtime|wasmer<br>(cranelift)|wasmer<br>(llvm)|WAMR<br>-O0|WAMR<br>-O3|directly|
+|---|---|---|---|---|---|---|---|---|
+|`reva-client-eth` (rust)|7,887,190,279|1,419,050,123<br>-O1|1,074,488,397|doesn't work|?|didn't check|?|388,564,723|
+|`stateless`(go)|12,866,052,519|2,110,574,100<br>-O3|874,758,419|953,874,491|?|5,427,433,654|?|236,265,327|
 
 ## Analysis of the results
 
-### Rust results
+Please note that `reva-client-eth` and `stateless` numbers shall not be compared against each other. These two implementations are executed against a different block and with a different block serialization framework.
 
-Conclusions for `reva-client-eth`:
-- the direct build is the fastest
-- gcc optimization levels matter a lot
-- unoptimized WASM is 20 times slower than the direct build
-- `-O1` build is 3.6 times slower than the direct build
-- `-O3` build improves on that a little bit - see the "gcc bug"
+Unfortunatelly due to some issues we were not able to benchmark the most promising approaches: `wasmer (llvm)` and `wamr -O3`. The analysis is based only on available benchmark results.
 
-Conclusions for `fibonacci` and `hello-world`:
-- surprisingly optimized WAS build is faster than the direct build
-
-### Go results
-`-O3` WASM approach is ~10 times slower than the direct compilation. `-O0` is 6 times slower than `-O3`. These gaps are significantly bigger than for the corresponding gaps for `reva-client-eth` Rust program.
-
-Surprisingly WASM though `wasmtime` is faster than `w2c2`. `wasmtime` approach is ~3-4 times slower than the direct approach.
-
-Unoptimized WAMR AOT is currently in between `w2c2` and wasmtime. Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error. https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
-
-### Other observations
-
-`cranelift` (used by `wasmtime` and `wasmer`) proved to be the fastest runtime for Ethereum client programs written in Go and Rust. When running via `wasmtime`, execution required 2.7× more steps than native compilation for Rust and 4.0× for Go. This suggests the Go compiler may generate less efficient WASM bytecode than the Rust compiler, though the difference between the two ratios is significantly smaller than initially expected.
+Conclusions:
+- not suprisingly the direct compilation method is the fastest
+- for `w2c2` the optimizations used for gcc are critical giving 6x speedup compared to non-optimized "-O0" builds
+- pipelines based on `cranelift` have the best performance
+- the ratio of the number instructions instructions required to do the computation when program is compiled via `wasmtime` and directly is:
+  - 2.8 for `reva-client-eth`
+  - 3.7 for `stateless`
+- from the above one can conclude that the quality of WASM generated by Go compiler is not much worse than the quality of WASM generated by Rust compiler
+- `wamr -O0`is currently in between `w2c2` and `wasmtime`
 
 ### Size of binaries
 
@@ -136,6 +134,9 @@ $ ls -lah build/bin/
 ```
 
 ## Issues
+
+### `wamr -O3` bug
+Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error. https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
 
 ### gcc bug
 
