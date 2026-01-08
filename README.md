@@ -138,9 +138,16 @@ $ ls -lah build/bin/
 ### `wamr -O3` bug
 Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error. https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
 
+### `wasmer (llvm)` bug
+
+https://github.com/wasmerio/wasmer/issues/5954
+https://github.com/wasmerio/wasmer/issues/5951
+
+`wasmer` team's been actively working on fixing RISCV target.
+
 ### gcc bug
 
-The optimized `reva-client-eth` build uses the `-O1` optimization level. Using higher optimization leads to non-terminating compilation. It was confirmed that it's a gcc bug. That conclusion was drawn by the following observations:
+The `w2c2 optimized` compilation pipeline for `reva-client-eth` uses the `-O1` optimization level. Using higher optimization leads to non-terminating compilation. It was confirmed that it's a gcc bug. That conclusion was drawn by the following observations:
 - clang is able to compile the same sources
 - w2c2 was provided with `-f 100` option that results in splitting into many source files; then gcc was stuck at compilation of a single file with ~1000LOC
 
@@ -148,7 +155,7 @@ The optimized `reva-client-eth` build uses the `-O1` optimization level. Using h
 
 ### linking problem
 
-The `stateless` Go program won't link if the optimization level is non-zero. The error is:
+The `w2c2 optimized` compilation pipeline for `stateless` program won't link if the optimization level is non-zero. The error is:
 ```
 guest.c:(.text.guestInitMemories+0x50): relocation truncated to fit: R_RISCV_JAL against `.L214'
 collect2: error: ld returned 1 exit status
