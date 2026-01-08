@@ -1,10 +1,23 @@
 # WASRISC
 
-This repository contains a toolchain for transpiling WASM-WASI programs to run on bare metal RISC-V targets. The main target for this repository are RISCV zkVMs. One can think of this target as a very limited virtual CPU.
+The goal of this repository is to demostrate and benchmark different compilation methods of high level languages to RISCV64IM(target of RISCV zkVMs) via WASM-WASI as an intermediate step.
 
-Note: Any language that compiles to WASM with WASI support(0.1) can use this pipeline
+In this experiment we also want to know the impact on performance of using WASM-WASI as an intermediate step as compared to direct compilation from a high level language to RISCV64IM.
+
+Note: Any language that compiles to WASM with WASI support(0.1) can use these pipelinelines but the main focus is on Go and Rust.
 
 ## Pipeline Overview
+
+The common step is the compilation from a high level language to a WASM-WASI. WASM target is supported by compilers of most high level languages.
+
+The transition from WASM to zkVM target can be achieved in many ways. 3 compilation methods were pursued in this experiment:
+1. compilation of WASM to C source code with `w2c2` compiler and then compilation of C source code to the final target with `gcc` or a platform specific compiler
+2. compilation of WASM to the final target with WAMR (LLVM backend)
+3. compilation of WASM to Linux (either host or RISCV64) with `wasmtime` or `wasmer` (both utilizing `cranelift` for code generation)
+
+
+For the 3rd approach Linux was the target because Linux was supported out of the box and porting to a bare-metal platform would be a significant effort. For the purpose of benchmarking of the Ethereum state transition function that discrepancy didn't matter because of minimal OS interaction and lack of floating point operations usage in the function being benchmark.
+
 
 ```mermaid
 graph TD;
@@ -31,10 +44,13 @@ classDef subgraphStyle fill:none,stroke:none;
 
 ## Prerequisites
 
-The easiest way to build is using the provided Docker environment, which includes:
-
+The enviroment for running the benchmarks is dockerized. Docker includes:
 - RISC-V GNU Toolchain with newlib (rv64ima)
 - w2c2 WebAssembly-to-C transpiler
+- qemu with with `libinsn` plugin
+- WAMR
+- wasmtime
+- wasmer
 
 > Running the docker script the first time, will take some time because it is rebuilding the RISCV gnu toolchain from source inside of Docker.
 
