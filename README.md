@@ -75,37 +75,22 @@ Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different c
 
 See the scripts themselves for implementation details.
 
-## Benchmarks of Rust programs
+## Benchmarks
 
 The benchmark presents the number of instructions executed for a program compiled with various methods:
-- "through WASM, -O0" was compiled by `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` with `-O0` optimization level
-- "through WASM, optimized" was compiled by `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` with non-zero optimization level
-- "directly" was compiled with `cargo build --target riscv64gc-unknown-linux-gnu --release`
+- `w2c2 -O0` - WASM is compiled to C with `w2c2`; then C sources are compiled with gcc with optimization "-O0" for Linux `rv64imad`
+- `w2c2 optimized` - WASM is compiled to C with `w2c2`; then C sources are compiled with gcc with non zero optimization for Linux `rv64imad`
+- `directly`:
+  - for Rust: `cargo build --target riscv64gc-unknown-linux-gnu --release`
+  - for Go: `GOOS=linux GOARCH=riscv64 go build`
+- `wasmtime` - WASM is compiled with `wasmtime` using Cranelift code generation backend to a `riscv64gc` precompiled ".cwasm" file; the latter is then executed using the `wasmtime` runtime on Linux
+- `wasmer` -  WASM is compiled with by `wasmer` using Cranelift code generation backend to a `riscv64gc` precompiled ".wasmu" file; the latter is then executed using the `wasmer` runtime on Linux
+- `wamr` - WASM is compiled by `wamr` using LLVM code generation backend with optimization -O0 for bare metal `riscv64ima`
 
-The number of cycles was measured by using libinsn qemu plugin.
-
-
-|program|w2c2<br>-O0|w2c2<br>optimized|wasmtime|wasmer<br>(cranelift)|directly|
-|---|---|---|---|---|---|
-|`reva-client-eth`|7,887,190,279|1,419,050,123<br>-O1|1,074,488,397|doesn't work|388,564,723|
-|`fibonacci`|1,033,748|167,179<br>-O3|-|-|427,110|
-|`hello-world`|42,819|20,634<br>-O3|-|-|211,591|
-
-Please note that:
--  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Rust direct compilation uses `rv64gc`.
-- the programs could have been compiled for `qemu-system-riscv64` but direct compilation from Rust to baremetal would be more difficult.
-
-These are not expected to affect the benchmark results in a significant way.
-
-## Benchmarks of Go programs
-
-Please note that:
--  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Go direct compilation uses `rv64gc`.
-- `wasmtime` targets rv64gc
-
-|program|w2c2<br>-O0|w2c2<br>optimized|WAMR<br>-O0|wasmtime|wasmer (cranelift)|directly|
+|program|w2c2<br>-O0|w2c2<br>optimized|wasmtime|wasmer<br>(cranelift)|WAMR<br>-O0|directly|
 |---|---|---|---|---|---|---|
-|`stateless`|12,866,052,519|2,110,574,100<br>-O3|5,427,433,654|874,758,419|953,874,491|236,265,327|
+|`reva-client-eth`|7,887,190,279|1,419,050,123<br>-O1|1,074,488,397|doesn't work|didn't check|388,564,723|
+|`stateless`|12,866,052,519|2,110,574,100<br>-O3|874,758,419|953,874,491|5,427,433,654|236,265,327|
 
 ## Analysis of the results
 
