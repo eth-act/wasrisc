@@ -75,67 +75,7 @@ Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different c
 
 See the scripts themselves for implementation details.
 
-## Examples
-
-All examples below use Go, but the same principles apply to any language that compiles to WASM with WASI support.
-
-### Simple Hello World
-
-```go
-// examples/go/println/example.go
-package main
-
-import "fmt"
-
-func main() {
-    fmt.Println("Hello world from golang")
-}
-```
-
-### Custom WASM Imports
-
-You can call platform-specific functions from your WASM code using custom imports.
-
-In Go, use `//go:wasmimport`:
-
-```go
-// examples/go/with_import/example.go
-package main
-
-import "fmt"
-
-//go:wasmimport testmodule testfunc
-//go:noescape
-func testfunc(a, b uint32) uint32
-
-func main() {
-    result := testfunc(1, 2)
-    fmt.Printf("testfunc(1, 2) = %d\n", result)
-}
-```
-
-Implement the import in `platform/*/custom_imports.c`:
-```c
-// platform/amd64/custom_imports.c
-U32 testmodule__testfunc(void* p, U32 a, U32 b) {
-    printf("testfunc called with %u, %u\n", a, b);
-    return a + b;
-}
-```
-
-## Memory Limits
-
-For embedded targets with limited memory, use `debug.SetMemoryLimit()`:
-```go
-import "runtime/debug"
-
-func main() {
-    debug.SetMemoryLimit(400 * (1 << 20)) // 400MB limit
-    // ...
-}
-```
-
-# Benchmarks of Rust programs
+## Benchmarks of Rust programs
 
 The benchmark presents the number of instructions executed for a program compiled with various methods:
 - "through WASM, -O0" was compiled by `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` with `-O0` optimization level
@@ -157,7 +97,7 @@ Please note that:
 
 These are not expected to affect the benchmark results in a significant way.
 
-# Benchmarks of Go programs
+## Benchmarks of Go programs
 
 Please note that:
 -  `./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh` uses target `-march=rv64imad -march=rv64imad` whereas Go direct compilation uses `rv64gc`.
@@ -192,7 +132,7 @@ Unoptimized WAMR AOT is currently in between `w2c2` and wasmtime. Running WAMR w
 
 `cranelift` (used by `wasmtime` and `wasmer`) proved to be the fastest runtime for Ethereum client programs written in Go and Rust. When running via `wasmtime`, execution required 2.7× more steps than native compilation for Rust and 4.0× for Go. This suggests the Go compiler may generate less efficient WASM bytecode than the Rust compiler, though the difference between the two ratios is significantly smaller than initially expected.
 
-# Size of binaries
+### Size of binaries
 
 ```
 $ ls -lah build/bin/
@@ -210,9 +150,9 @@ $ ls -lah build/bin/
 64M  stateless.riscv.O3.elf
 ```
 
-# Issues
+## Issues
 
-## gcc bug
+### gcc bug
 
 The optimized `reva-client-eth` build uses the `-O1` optimization level. Using higher optimization leads to non-terminating compilation. It was confirmed that it's a gcc bug. That conclusion was drawn by the following observations:
 - clang is able to compile the same sources
@@ -220,7 +160,7 @@ The optimized `reva-client-eth` build uses the `-O1` optimization level. Using h
 
 `reva-client-eth` compiled with `clang` with `-O3` optimization level requires 1.2e9 instructions to execute. That's not much less than when compiled with `gcc` with `-O1` that requires 1.4e9 instructions.
 
-## linking problem
+### linking problem
 
 The `stateless` Go program won't link if the optimization level is non-zero. The error is:
 ```
@@ -232,9 +172,52 @@ The culprit is a single huge function `guestInitMemories` that spans over 100,00
 
 The issue with large intra-function jumps is not present on x86 because on that platform relative jumps can be 32-bit.
 
-## Compilation times
+### Compilation times
 
 For higher optimization levels (e.g. `-O3`) one can expect compilation times of `reva-client-eth` and `stateless` up to 60 minutes.
+
+### Custom WASM Imports
+
+You can call platform-specific functions from your WASM code using custom imports.
+
+In Go, use `//go:wasmimport`:
+
+```go
+// examples/go/with_import/example.go
+package main
+
+import "fmt"
+
+//go:wasmimport testmodule testfunc
+//go:noescape
+func testfunc(a, b uint32) uint32
+
+func main() {
+    result := testfunc(1, 2)
+    fmt.Printf("testfunc(1, 2) = %d\n", result)
+}
+```
+
+Implement the import in `platform/*/custom_imports.c`:
+```c
+// platform/amd64/custom_imports.c
+U32 testmodule__testfunc(void* p, U32 a, U32 b) {
+    printf("testfunc called with %u, %u\n", a, b);
+    return a + b;
+}
+```
+
+### Memory Limits
+
+For embedded targets with limited memory, use `debug.SetMemoryLimit()`:
+```go
+import "runtime/debug"
+
+func main() {
+    debug.SetMemoryLimit(400 * (1 << 20)) // 400MB limit
+    // ...
+}
+```
 
 ## License
 
