@@ -67,76 +67,13 @@ rustup target add riscv64gc-unknown-linux-gnu
 
 ## Quick Start
 
-### 1. Compile Your Source to WASM
+Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different compilation methods for the Ethereum state transition function. These scripts:
 
-For Go (included examples):
+1. Compile Rust and Go implementations using various methods
+2. Execute the compiled binaries under QEMU with the `libinsn` plugin to count instructions
+3. Save the instruction counts for each compilation method to `go_benchmark_results.txt` and `rust_benchmark_results.txt` (see "total insns" in those files)
 
-```bash
-# Compile all Go examples to WASM
-./examples/scripts/go2wasm.sh
-
-# This creates WASM files in examples/build-wasm/go/
-# For example: examples/build-wasm/go/println.wasm
-```
-
-### 2. Transpile WASM to C Package
-
-```bash
-./docker/wasm2c-package.sh examples/build-wasm/go/println.wasm build/c-packages/println/
-
-# This creates:
-#   build/c-packages/println/guest.c      - Generated C code
-#   build/c-packages/println/guest.h      - Generated header
-#   build/c-packages/println/w2c2_base.h  - w2c2 runtime
-```
-
-### 3. Compile to Target Platform
-
-#### AMD64 (Native - for testing)
-```bash
-./platform/amd64/scripts/c2native-amd64.sh \
-    build/c-packages/println \
-    build/bin/println.amd64
-
-# Run it
-./build/bin/println.amd64
-```
-
-#### Zisk
-
-```bash
-./platform/zkvm/scripts/c2zkvm.sh \
-    build/c-packages/println \
-    build/bin/println.zkvm.elf
-
-# Run in zkVM emulator (Need to install this separately)
-ziskemu -e build/bin/println.zkvm.elf
-```
-
-#### QEMU RISC-V
-
-```bash
-./platform/riscv-qemu/scripts/c2riscv-qemu.sh \
-    build/c-packages/println \
-    build/bin/println.riscv.elf
-
-# Run in QEMU
-qemu-system-riscv64 -machine virt -bios none \
-    -kernel build/bin/println.riscv.elf -nographic
-```
-
-#### QEMU RISC-V WAMR
-
-```bash
-./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh \
-    examples/build-wasm/go/fibonacci.wasm \
-    build/bin/fibonacci.wamr.elf
-
-# Run in QEMU
-./docker/docker-shell.sh qemu-system-riscv64 -machine virt -m 1024M \
-    -kernel build/bin/fibonacci.wamr.elf -nographic -d plugin \
-    -plugin /libinsn.so
-```
+See the scripts themselves for implementation details.
 
 ## Examples
 
