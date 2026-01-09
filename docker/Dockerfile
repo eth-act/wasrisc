@@ -65,7 +65,7 @@ RUN apt update && apt install -y git build-essential ninja-build pkg-config libg
 RUN git clone https://git.qemu.org/git/qemu.git && \
     cd qemu && \
     sed -i 's/g_assert(count > 0)/g_assert(count >= 0)/g' tests/tcg/plugins/insn.c && \
-    ./configure --target-list=riscv64-linux-user,riscv64-softmmu --enable-plugins && \
+    ./configure --target-list=riscv64-linux-user,riscv64-softmmu,x86_64-softmmu,i386-softmmu,x86_64-linux-user,i386-linux-user,aarch64-softmmu,aarch64-linux-user --enable-plugins && \
     make -j4 && \
     make install && \
     cp build/tests/tcg/plugins/libinsn.so /libinsn.so && \
@@ -116,14 +116,26 @@ RUN git clone https://github.com/psilva261/wasm-micro-runtime-zkvm.git /opt/wamr
     cmake . && \
     make
 
+RUN apt update && apt install -y gcc-riscv64-linux-gnu
+RUN apt update && apt install -y wget
+
+RUN wget https://wasmtime.dev/install.sh \
+    && chmod u+x install.sh \
+    && ./install.sh --version v39.0.1 \
+    && rm ./install.sh
+
+RUN curl https://get.wasmer.io -sSfL | sh -s "v6.1.0"
+
+RUN git clone https://github.com/richfelker/musl-cross-make \
+    && cd musl-cross-make \
+    && printf 'TARGET = aarch64-linux-musl\nOUTPUT = /opt/aarch64-linux-musl-gcc\n' > config.mak \
+    && make -j8 \
+    && make install \
+    && cd .. \
+    && rm -r musl-cross-make
+
 # Add toolchains to PATH
 ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:/opt/wamr/wamr-compiler:${PATH}"
-
-RUN apt update && apt install -y gcc-riscv64-linux-gnu
-
-RUN curl https://wasmtime.dev/install.sh -sSf | bash
-
-RUN curl https://get.wasmer.io -sSfL | sh
 
 # Set working directory
 WORKDIR /workspace
