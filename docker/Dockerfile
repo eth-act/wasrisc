@@ -136,6 +136,30 @@ RUN git clone https://github.com/richfelker/musl-cross-make \
 
 # Add toolchains to PATH
 ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:/opt/wamr/wamr-compiler:${PATH}"
+ENV PATH="/opt/aarch64-linux-musl-gcc/bin:${PATH}"
+
+RUN git clone https://github.com/bytecodealliance/wasm-micro-runtime /opt/wamr-aarch64/ && \
+    cd /opt/wamr-aarch64 && \
+    cmake . \
+        -DWAMR_BUILD_PLATFORM=linux \
+        -DWAMR_BUILD_TARGET=AARCH64 \
+        -DWAMR_BUILD_LIBC_BUILTIN=1 \
+        -DWAMR_BUILD_LIBC_WASI=1 \
+        -DWAMR_BUILD_FAST_INTERP=1 \
+        -DWAMR_BUILD_JIT=0 \
+        -DWAMR_BUILD_AOT=1 \
+        -DCMAKE_C_COMPILER=/opt/aarch64-linux-musl-gcc/bin/aarch64-linux-musl-gcc \
+        -DCMAKE_CXX_COMPILER=/opt/aarch64-linux-musl-gcc/bin/aarch64-linux-musl-g++ \
+        -DCMAKE_ASM_COMPILER=/opt/aarch64-linux-musl-gcc/bin/aarch64-linux-musl-gcc \
+        -DWASM_ENABLE_SIMDE=OFF \
+        -DWAMR_BUILD_SIMD=0 && \
+    make && \
+    cd /opt/wamr-aarch64/wamr-compiler && \
+    ./build_llvm.sh && \
+    cmake . && \
+    make
+
+RUN ln -s /opt/aarch64-linux-musl-gcc/aarch64-linux-musl/lib/libc.so /lib/ld-musl-aarch64.so.1
 
 # Set working directory
 WORKDIR /workspace
