@@ -134,8 +134,13 @@ RUN git clone https://github.com/richfelker/musl-cross-make \
     && cd .. \
     && rm -r musl-cross-make
 
+WORKDIR /opt
+RUN wget https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/LLVM-21.1.8-Linux-X64.tar.xz && \
+   tar xf LLVM-21.1.8-Linux-X64.tar.xz && \
+   rm /opt/LLVM-21.1.8-Linux-X64.tar.xz
+
 # Add toolchains to PATH
-ENV PATH="/opt/riscv-newlib/bin:/opt/w2c2/w2c2:/opt/wamr/wamr-compiler:${PATH}"
+ENV PATH="/opt/riscv-newlib/bin:/opt/LLVM-21.1.8-Linux-X64/bin:/opt/w2c2/w2c2:/opt/wamr/wamr-compiler:${PATH}"
 
 # Set working directory
 WORKDIR /workspace

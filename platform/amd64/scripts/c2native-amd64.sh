@@ -78,6 +78,7 @@ echo "Compiling..."
 CFLAGS=(
     -g
     -DAMD64
+    -D__bool_true_false_are_defined
     -O0
 )
 
