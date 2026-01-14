@@ -91,9 +91,11 @@ The following critical benchmarks could not yet be performed due to issues in `w
 - **wasmer (llvm)**: WASM compiled with `wasmer` using LLVM backend to a `riscv64gc` precompiled ".wasmu" file, then executed using the `wasmer` runtime on Linux
 - **wamr -O3**: WASM compiled with `wamr` using LLVM backend with `-O3` optimization for bare-metal `riscv64ima`
 
+Since these critical benchmarks could not be performed on RISC-V, they were performed on AArch64 with the expectation that those results would allow us to extrapolate potential RISC-V performance.
+
 See the "Known Issues" section for details.
 
-## Benchmark Results
+## Benchmark Results on RISCV
 
 | Program | w2c2<br>-O0 | w2c2<br>optimized | wasmtime | wasmer<br>(cranelift) | wasmer<br>(llvm) | WAMR<br>-O0 | WAMR<br>-O3 | directly |
 |---|---|---|---|---|---|---|---|---|
@@ -104,7 +106,7 @@ See the "Known Issues" section for details.
 
 **Important:** The `reva-client-eth` and `stateless` numbers should not be compared directly against each other, as these implementations execute against different blocks using different block serialization frameworks.
 
-Unfortunately, we were unable to benchmark the most promising approaches (`wasmer (llvm)` and `wamr -O3`) due to outstanding issues. The following analysis is based on available results only.
+Unfortunately, we were unable to benchmark the most promising approaches (`wasmer (llvm)` and `wamr -O3`) on RISCV due to outstanding issues. The following analysis is based on available results for RISCV only.
 
 ### Key Findings
 
@@ -134,6 +136,34 @@ $ ls -lah build/bin/
 58M  stateless.riscv.O1.elf
 64M  stateless.riscv.O3.elf
 ```
+
+## Supplementary Benchmark Results on AARCH64
+
+The benchmark was performed for stateless (Go) only. `WAMR -O3` targets dynamically-linked AArch64 Linux MUSL. To reduce the impact of dynamic linker overhead and WAMR runtime setup, multiple runs of the business logic were performed. In the following tables, all WAMR rows without a `--b-c=0` annotation used the `--bounds-checks=0` option during WAMR compilation. All other rows used the `--bounds-checks=1` option during WAMR compilation.
+
+|pipeline<br>/<br>number of runs|wasmtime|wasmer<br>(cranelift)|wasmer<br>(llvm)|WAMR<br>-O3|directy|
+|---|---|---|---|---|---|
+|1x|659,241,636|663,867,152|626,137,758|990,892,303|166,611,730|
+|1x|(same)|(same)|(same)|699,810,538<br><sup>--b-c=0<sup/>|(same)|
+|10x|2,533,334,795|2,268,562,071|2,002,956,919|3,100,038,538|660,390,007|
+|25x|5,686,210,736|4,978,224,909|4,338,984,157|6,674,027,814|1,477,959,349|
+|50x|10,929,448,352|-|-|12,581,544,465|2,830,756,855|
+|50x|(same)|-|-|8,338,818,655<br><sup>--b-c=0<sup/>|(same)|
+
+The following table presents the ratio between the number of steps executed for a given compilation pipeline and the number of steps executed for a directly compiled program.
+
+|pipeline<br>/<br>number of runs|wasmtime|wasmer<br>(cranelift)|wasmer<br>(llvm)|WAMR<br>-O3|directy|
+|---|---|---|---|---|---|
+|1x|3.95|3.98|3.75|5.94|1.0|
+|1x|(same)|(same)|(same)|4.19<br><sup>--b-c=0<sup/>|(same)|
+|10x|3.83|3.43|3.03|4.69|1.0|
+|25x|3.84|3.36|2.93|4.51|1.0|
+|50x|3.86|-|-|4.44|1.0|
+|50x|(same)|-|-|2.94<br><sup>--b-c=0<sup/>|(same)|
+
+The `--bounds-checks=0` option appears to be critical for WAMR performance. Only with this option can WAMR outperform Cranelift-based frameworks in some scenarios. For a single run, `wasmtime`, `wasmer (cranelift)`, `and wasmer (llvm)` show similar performance. Single-run results for WAMR are difficult to interpret due to overhead from dynamic linking and Linux WAMR runtime setup, which would not be present on a zkVM bare-metal platform. For compute-intensive programs (50x), WAMR appears to have an edge over other compilation pipelines. The best-performing WebAssembly approaches appear to be 3-4 times slower than direct compilation of the stateless Go program.
+
+These results have not been taken into account in the "Analysis" section.
 
 ## Known Issues
 
