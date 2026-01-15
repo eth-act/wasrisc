@@ -67,16 +67,20 @@ PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
+    --target=riscv64
     -march=rv64im
     -mabi=lp64
     -mcmodel=medany
     -specs=nosys.specs
     -D__bool_true_false_are_defined
+    -include stdbool.h
     -ffunction-sections
     -fdata-sections
-    -O0
+    -O3
     -g
     -Wall
+    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
+    --gcc-toolchain=/opt/riscv-newlib
 )
 
 # Include directories
@@ -114,7 +118,7 @@ LDFLAGS=(
 # Link libraries
 LIBS=(-lc -lm -lgcc)
 
-"$DOCKER_DIR/docker-shell.sh" ${PREFIX}gcc \
+"$DOCKER_DIR/docker-shell.sh" clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \

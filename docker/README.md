@@ -7,7 +7,7 @@ This Docker setup provides a complete build environment with the RISC-V GNU tool
 **Warning:** The initial build will take a while because it compiles the RISC-V GNU toolchain from source.
 
 ```bash
-docker build -f docker/Dockerfile -t skunkworks-go-wasm .
+docker build -f docker/Dockerfile -t skunkworks-go-wasm docker
 ```
 
 ## Usage
