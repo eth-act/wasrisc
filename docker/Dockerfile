@@ -181,6 +181,17 @@ RUN git clone https://github.com/psilva261/wasm-micro-runtime-zkvm.git /opt/wamr
     ./build_llvm.sh && \
     cmake . && \
     make
+
+WORKDIR /opt
+RUN wget https://zlib.net/zlib-1.3.1.tar.gz
+#WORKDIR /opt/zlib-1.3.1
+#RUN bash ./configure
+#RUN make
+#RUN make install
+
+ENV ZLIB_LIBRARY=/opt/zlib-1.3.1
+RUN sed -i '/find_package(Threads)/a find_package(ZLIB REQUIRED)' /opt/wamr-llvm-jit/CMakeLists.txt
+RUN ln -s /usr/include/asm-generic /usr/include/asm
 RUN cd /opt/wamr-llvm-jit && \
     cmake . \
         -DWAMR_BUILD_PLATFORM=zkvm \
@@ -199,8 +210,9 @@ RUN cd /opt/wamr-llvm-jit && \
         -DCMAKE_CXX_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-g++ \
         -DCMAKE_ASM_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-gcc \
         -DWASM_ENABLE_SIMDE=OFF \
-        -DWAMR_BUILD_SIMD=0 # && \
-    make
+        -DZLIB_LIBRARY=/opt/zlib-1.3.1 \
+        -DWAMR_BUILD_SIMD=0 && \
+   make
 
 # Set working directory
 WORKDIR /workspace
