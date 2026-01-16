@@ -166,6 +166,39 @@ RUN git clone https://github.com/bytecodealliance/wasm-micro-runtime /opt/wamr-a
 
 RUN ln -s /opt/aarch64-linux-musl-gcc/aarch64-linux-musl/lib/libc.so /lib/ld-musl-aarch64.so.1
 
+# https://github.com/llvm/llvm-project/issues/81440
+#
+# https://github.com/bytecodealliance/wasm-micro-runtime/blob/d4034f1cfbbbd5fe5e3dcf9bb10f00dca625218c/doc/build_wamr.md#configure-llvm-jit
+#
+# To build llvm-jit support, llvm needs to be built first
+RUN git clone https://github.com/psilva261/wasm-micro-runtime-zkvm.git /opt/wamr-llvm-jit/ && \
+    cd /opt/wamr-llvm-jit && \
+    git checkout zkvm && \
+    cd /opt/wamr-llvm-jit/wamr-compiler && \
+    ./build_llvm.sh && \
+    cmake . && \
+    make
+RUN cd /opt/wamr-llvm-jit && \
+    cmake . \
+        -DWAMR_BUILD_PLATFORM=zkvm \
+        -DWAMR_BUILD_LIBC_BUILTIN=1 \
+        -DWAMR_BUILD_LIB_PTHREAD=0 \
+        -DWAMR_BUILD_THREAD_MGR=0 \
+        -DWAMR_BUILD_WASI_THREADS=0 \
+        -DTHREADS_PREFER_PTHREAD_FLAG=OFF \
+        -DCMAKE_THREAD_LIBS_INIT="" \
+        -DWAMR_BUILD_FAST_INTERP=1 \
+        -DWAMR_BUILD_JIT=1 \
+        -DWAMR_BUILD_AOT=0 \
+        -DCMAKE_SYSTEM_PROCESSOR=riscv64 \
+        -DWAMR_BUILD_TARGET=RISCV64_LP64 \
+        -DCMAKE_C_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-gcc \
+        -DCMAKE_CXX_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-g++ \
+        -DCMAKE_ASM_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-gcc \
+        -DWASM_ENABLE_SIMDE=OFF \
+        -DWAMR_BUILD_SIMD=0 # && \
+    make
+
 # Set working directory
 WORKDIR /workspace
 
