@@ -171,6 +171,9 @@ RUN ln -s /opt/aarch64-linux-musl-gcc/aarch64-linux-musl/lib/libc.so /lib/ld-mus
 # https://github.com/bytecodealliance/wasm-micro-runtime/blob/d4034f1cfbbbd5fe5e3dcf9bb10f00dca625218c/doc/build_wamr.md#configure-llvm-jit
 #
 # To build llvm-jit support, llvm needs to be built first
+#
+# TODO: look into WAMR_BUILD_LAZY_JIT={0,1}
+# TODO2: just may core/deps/llvm if possible
 RUN git clone https://github.com/psilva261/wasm-micro-runtime-zkvm.git /opt/wamr-llvm-jit/ && \
     cd /opt/wamr-llvm-jit && \
     git checkout zkvm && \
