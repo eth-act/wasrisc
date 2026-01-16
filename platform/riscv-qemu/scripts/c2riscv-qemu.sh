@@ -90,7 +90,6 @@ INCLUDES=(
 # Source files
 SOURCES=(
     platform/riscv-qemu/main.c
-    platform/riscv-qemu/syscalls.c
     "$GUEST_DIR/guest.c"
     $GUEST_DIR/s0*.c
     w2c2/embedded/wasi.c
