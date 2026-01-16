@@ -99,23 +99,6 @@ int _isatty(int file) {
 #define SIFIVE_TEST_BASE 0x100000
 #define SIFIVE_TEST_FINISHER (*(volatile uint32_t*)(SIFIVE_TEST_BASE))
 
-void _exit(int status) {
-    /* Print exit message */
-    if (status == 0) {
-        const char msg[] = "\nProgram exited successfully\n";
-        _write(STDOUT_FILENO, (char*)msg, sizeof(msg) - 1);
-    } else {
-        const char msg[] = "\nProgram exited with error\n";
-        _write(STDERR_FILENO, (char*)msg, sizeof(msg) - 1);
-    }
-
-    /* Signal QEMU to exit using the test device */
-    /* Writing 0x5555 exits with success, 0x3333 with failure */
-    SIFIVE_TEST_FINISHER = (status == 0) ? 0x5555 : 0x3333;
-
-    /* Should never reach here, but just in case loop forever */
-    while(1);
-}
 
 /* _kill: Send signal to a process */
 int _kill(int pid, int sig) {
