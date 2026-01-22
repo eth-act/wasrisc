@@ -78,7 +78,6 @@ CFLAGS=(
     -fdata-sections
     -O3
     -g
-    -Wall
     --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
     --gcc-toolchain=/opt/riscv-newlib
 )
@@ -98,6 +97,7 @@ SOURCES=(
     platform/zkvm/custom_imports.c
     "$GUEST_DIR/guest.c"
     wasi/embedded/wasi.c
+    wasi/embedded/wasip2.c
 )
 
 # Assembly source

@@ -8,7 +8,6 @@
  */
 
 #include "w2c2_base.h"
-#include "zkvm.h"
 #include <stdio.h>
 
 U32 testmodule__testfunc(void* instance, U32 a, U32 b) {
@@ -19,19 +18,30 @@ U32 testmodule__testfunc2(void* instance, U32 a, U32 b) {
     return a * b;
 }
 
-void testmodule__printk(void* instance, U32 val) {
-    printk(val);
+int testmodule__printk(void* instance, U32 val) {
+    char buf[12];
+    static const char hex[] = "0123456789abcdef";
+
+    buf[0] = '0';
+    buf[1] = 'x';
+    for (int i = 7; i >= 0; --i) {
+        buf[i+2] = hex[val & 0xF];
+        val >>= 4;
+    }
+    buf[10] = '\n';
+    buf[11] = '\0';
+
+    puts(buf);
 }
 
 void testmodule__shutdown(void* instance) {
-    shutdown();
+    exit(0);
 }
 
 U32 testmodule__input_data_len(void* instance) {
-    uint32_t *ptr_val = (uint32_t *)(INPUT_ADDR + 4 * 2);
-    return *ptr_val;
+    return 0;
 }
 
 U32 testmodule__input_data(void* instance, U32 index) {
-    return *((char *)(INPUT_ADDR + 4 * 4 + index));
+    return 0;
 }

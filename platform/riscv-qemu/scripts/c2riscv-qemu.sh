@@ -78,7 +78,6 @@ CFLAGS=(
     -fdata-sections
     -O0
     -g
-    -Wall
 )
 
 # Include directories
@@ -92,8 +91,10 @@ INCLUDES=(
 SOURCES=(
     platform/riscv-qemu/main.c
     platform/riscv-qemu/syscalls.c
+    platform/riscv-qemu/custom_imports.c
     "$GUEST_DIR/guest.c"
     wasi/embedded/wasi.c
+    wasi/embedded/wasip2.c
 )
 
 # Assembly source

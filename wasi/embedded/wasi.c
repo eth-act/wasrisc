@@ -73,6 +73,11 @@ U32 wasi_snapshot_preview1__adapter_close_badfd(void* i, U32 l0) {
 	return 0;
 }
 
+U32 wasi_snapshot_preview1__fd_advise(void* i, U32 l0, U64 l1, U64 l2, U32 l3) {
+	printf("wasi_snapshot_preview1__fd_advise\n");
+	return 0;
+}
+
 U32 wasi_snapshot_preview1__fd_close(void* i, U32 l0) {
 	printf("wasi_snapshot_preview1__fd_close\n");
 	return 0;

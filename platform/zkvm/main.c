@@ -7,6 +7,7 @@
 #include "w2c2_base.h"
 #include "wasi.h"
 #include "guest.h"
+#include "zkvm.h"
 
 /* Trap handler for WASM runtime errors */
 void trap(Trap trap) {
@@ -37,6 +38,9 @@ int main(void) {
     guestFreeInstance(&instance0);
 
     printf("guest program completed\n");
+
+    // Explicit shutdown call needed at least for dotnet (TODO: why?)
+    shutdown();
 
     return 0;
 }
