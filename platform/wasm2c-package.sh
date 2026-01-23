@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+
+set -eu -o pipefail
 
 # wasm2c-package.sh - Package WASM to C with all dependencies
 # Usage: ./docker/wasm2c-package.sh input.wasm output-dir/
@@ -61,8 +62,14 @@ TEMP_GUEST_WASM="$OUTPUT_DIR/guest.wasm"
 cp "$INPUT_WASM" "$TEMP_GUEST_WASM"
 
 # Run w2c2 via Docker to generate C files with "guest" module name
+#
+# Also apply source file splitting which accelerates compilation even in a single threaded build.
+
+# Remove s0*.c files from previous builds
+rm -f $OUTPUT_DIR/s00000*.c
+
 echo "Transpiling WASM to C..."
-w2c2 "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+"$SCRIPT_DIR/docker-shell.sh" w2c2 -f 256 -p "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
 
 # Remove temporary guest.wasm
 rm -f "$TEMP_GUEST_WASM"

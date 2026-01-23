@@ -47,7 +47,7 @@ U32 wasi_snapshot_preview1__fd_fdstat_get(void* i, U32 wasiFD, U32 resultPointer
 	return 0;
 }
 
-U32 wasi_snapshot_preview1__fd_fdstat_set_flags(void*,U32,U32) {
+U32 wasi_snapshot_preview1__fd_fdstat_set_flags(void* i, U32 l0, U32 l1) {
 	printf("wasi_snapshot_preview1__fd_fdstat_set_flags\n");
 	//return 0;
 	return WASI_ERRNO_BADF;
@@ -124,27 +124,36 @@ struct iovec {
 
 #define WASI_ERRNO_NOMEM 48
 
+// Size of a single ciovec item
 static const size_t ciovecSize = 8;
+
+// Number of iovecs to be pre-allocated. Choose a number high enough to
+// let programs work that use file and socket I/O outside of printing to the
+// console. But small enough to raise an error since this stub implementation
+// would likely have to be extended in that case. (On Linux IOV_MAX is 1024)
+//
+// Pre-allocation is done to allow Console.WriteLine to work even when malloc
+// fails.
+#define IOVECS_SIZE 10
 
 /* use part of wasi.c from w2c2 here but avoid full implementation */
 U32 wasi_snapshot_preview1__fd_write(void* i, U32 wasiFD, U32 ciovecsPointer, U32 ciovecsCount, U32 resultPointer) {
 	wasmMemory* memory = wasiMemory(i);
-	struct iovec* iovecs = NULL;
+	struct iovec iovecs[IOVECS_SIZE];
 	I64 total = 0;
 	if (wasiFD != 1 && wasiFD != 2) {
 		printf("wasi_snapshot_preview1__fd_write(wasiFD=%d)\n", wasiFD);
 	}
 
-	iovecs = malloc(ciovecsCount * sizeof(struct iovec));
-	if (iovecs == NULL) {
-		printf("fd_write: no mem\n");
+	if (ciovecsCount > IOVECS_SIZE) {
+		printf("fd_write: unexpected iovecs\n");
 		return WASI_ERRNO_NOMEM;
 	}
 
 	/* Convert WASI ciovecs to native iovecs */
 	{
 		U32 ciovecIndex = 0;
-		for (; ciovecIndex < ciovecsCount; ciovecIndex++) {
+		for (; ciovecIndex < ciovecsCount && ciovecIndex < IOVECS_SIZE; ciovecIndex++) {
 			U64 ciovecPointer = ciovecsPointer + ciovecIndex * ciovecSize;
 			U32 bufferPointer = i32_load(memory, ciovecPointer);
 			U32 length = i32_load(memory, ciovecPointer + 4);
@@ -173,17 +182,17 @@ U32 wasi_snapshot_preview1__path_unlink_file(void* i, U32 l0, U32 l1, U32 l2) {
 	return 0;
 }
 
-U32 wasi_snapshot_preview1__random_get(void*,U32,U32) {
+U32 wasi_snapshot_preview1__random_get(void* i, U32 l0, U32 l1) {
 	printf("wasi_snapshot_preview1__random_get\n");
 	return 0;
 }
 
-U32 wasi_snapshot_preview1__args_get(void*,U32,U32) {
+U32 wasi_snapshot_preview1__args_get(void* i, U32 l0, U32 l1) {
 	printf("wasi_snapshot_preview1__args_get\n");
 	return 0;
 }
 
-U32 wasi_snapshot_preview1__args_sizes_get(void*,U32,U32) {
+U32 wasi_snapshot_preview1__args_sizes_get(void* i, U32 l0, U32 l1) {
 	printf("wasi_snapshot_preview1__args_sizes_get\n");
 	return 0;
 }
