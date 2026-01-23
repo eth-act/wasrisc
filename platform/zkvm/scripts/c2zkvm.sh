@@ -1,5 +1,7 @@
 #!/bin/bash
-set -e
+
+set -eu -o pipefail
+set -x # debug
 
 # c2zkvm.sh - Compile C package to zkvm RISC-V binary
 # Usage: ./platform/zkvm/scripts/c2zkvm.sh <guest-c-package-dir> <output-elf>
@@ -68,64 +70,86 @@ PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
     --target=riscv64
-    -march=rv64im
+    -march=rv64ima
     -mabi=lp64
     -mcmodel=medany
-    -specs=nosys.specs
     -D__bool_true_false_are_defined
     -include stdbool.h
-    -ffunction-sections
-    -fdata-sections
-    -O3
+    -O0
     -g
+    -nostdlib
+    -Wno-multilib-not-found
     --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
     --gcc-toolchain=/opt/riscv-newlib
 )
+#    -specs=nosys.specs -- not existing on clang
+
+# TODO: build w2c2 generated code separately with -Wnoall   -Wall
 
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Iwasi/embedded
+    -Iw2c2/embedded
     -Iplatform/zkvm
 )
 
 # Source files (minimal set)
 SOURCES=(
-    platform/zkvm/main.c
     platform/zkvm/zkvm.c
-    platform/zkvm/syscalls.c
     platform/zkvm/custom_imports.c
     "$GUEST_DIR/guest.c"
-    wasi/embedded/wasi.c
-    wasi/embedded/wasip2.c
+    platform/zkvm/main.c
+    w2c2/embedded/wasi.c
+    w2c2/embedded/wasip2.c
+    w2c2/embedded/memlib.c
 )
 
 # Assembly source
-ASM_SOURCE=platform/zkvm/startup.S
+ASM_SOURCES=(
+    platform/zkvm/startup.S
+    w2c2/embedded/memops.S
+)
 
 # Linker script
 LINKER_SCRIPT=platform/zkvm/zkvm.ld
 
 # Linker flags
 LDFLAGS=(
+    --target=riscv64
+    -march=rv64ima
+    -mabi=lp64
+    -mcmodel=medany
     -T"$LINKER_SCRIPT"
     -nostartfiles
-    -static
-    -Wl,--gc-sections
-    -Wl,-Map="${OUTPUT%.elf}.map"
+    -nostdlib
+    -Wno-multilib-not-found
+    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
+    --gcc-toolchain=/opt/riscv-newlib
 )
 
 # Link libraries
-LIBS=(-lc -lm -lgcc)
+LIBS=(-lgcc -lm)
 
-"$DOCKER_DIR/docker-shell.sh" clang \
+# Remove object files
+rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.o $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
+
+parallel -j$(nproc) "$DOCKER_DIR/docker-shell.sh" clang \
+    -c \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
+    ::: \
     "${SOURCES[@]}" \
-    "$ASM_SOURCE" \
+    "${ASM_SOURCES[@]}" \
+    $GUEST_DIR/s0*.c 2>&1
+
+"$DOCKER_DIR/docker-shell.sh" clang \
+    *.o \
     "${LDFLAGS[@]}" \
     "${LIBS[@]}" \
     -o "$OUTPUT" 2>&1
+
+# Remove object files
+rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.c $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
 
 # Check if compilation succeeded
 if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then
