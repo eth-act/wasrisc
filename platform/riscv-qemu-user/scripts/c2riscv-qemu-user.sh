@@ -85,14 +85,14 @@ CFLAGS=(
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Iwasi/embedded
+    -Iw2c2/embedded
 )
 
 # Source files
 SOURCES=(
     platform/riscv-qemu/main.c
     "$GUEST_DIR/guest.c"
-    wasi/embedded/wasi.c
+    w2c2/embedded/wasi.c
 )
 
 "$DOCKER_DIR/docker-shell.sh" riscv64-linux-gnu-gcc \
