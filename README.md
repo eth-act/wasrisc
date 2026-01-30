@@ -52,24 +52,15 @@ The benchmark environment is dockerized and includes:
 
 > **Note:** The first time you run the Docker script, it will take some time as it rebuilds the RISC-V GNU toolchain from source.
 
-In addition to Docker, install the following on your host system:
-- Rust
-- Rust wasip1 target:
-  ```bash
-  rustup target add wasm32-wasip1
-  ```
-- Rust RISC-V target:
-  ```bash
-  rustup target add riscv64gc-unknown-linux-gnu
-  ```
-
 ## Quick Start
 
-Run the `go_benchmark.sh` and `rust_benchmark.sh` scripts to compare different compilation methods for the Ethereum state transition function. These scripts will:
+
+
+Run the `./docker/docker-shell.sh run_all_benchmarks_with_report.sh` script to compare different compilation methods for the Ethereum state transition function. These scripts will:
 
 1. Compile Rust and Go implementations using various methods
 2. Execute the compiled binaries under QEMU with the `libinsn` plugin to count instructions
-3. Save instruction counts for each compilation method to `go_benchmark_results.txt` and `rust_benchmark_results.txt` (see "total insns" in those files)
+3. Save instruction counts for each compilation method to `report.md` file
 
 See the scripts for implementation details.
 

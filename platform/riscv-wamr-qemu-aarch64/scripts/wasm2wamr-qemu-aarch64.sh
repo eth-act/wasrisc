@@ -9,6 +9,7 @@ WAMR_QEMU_DIR="$(dirname "$SCRIPT_DIR")"
 DOCKER_DIR="$WAMR_QEMU_DIR/../../docker"
 PROJECT_ROOT="$WAMR_QEMU_DIR/../.."
 WAMR_ROOT=/opt/wamr-aarch64
+PATH=$WAMR_ROOT/bin/:$PATH
 
 # Check arguments
 if [ $# -lt 2 ]; then
@@ -50,8 +51,7 @@ echo ""
 
 # !!! --bounds-checks=0 works with dynamically linked musl !!!
 #
-"$DOCKER_DIR/docker-shell.sh" \
-    wamrc --target=aarch64 \
+wamrc --target=aarch64 \
     --opt-level=3 \
     --bounds-checks=0 \
     -o $OUTPUT.aarch64.wamr $1
@@ -86,10 +86,7 @@ CFLAGS=(
 
 # Include directories
 INCLUDES=(
-    -I"$WAMR_ROOT/core/iwasm/include"
-    -I"$WAMR_ROOT/core/shared/utils"
-    -I"$WAMR_ROOT/core/shared/utils/uncommon"
-    -I"$WAMR_ROOT/core/shared/platform/zkvm"
+    -I"$WAMR_ROOT/include"
 )
 
 # Source files
@@ -100,7 +97,7 @@ SOURCES=(
 
 # Linker flags (matching demo-qemu-virt-riscv/Makefile)
 LDFLAGS=(
-    -L"$WAMR_ROOT"
+    -L"$WAMR_ROOT/lib"
     -liwasm
     -Wl,--gc-sections
     -Wl,-Map="${OUTPUT%.elf}.map"
@@ -109,7 +106,7 @@ LDFLAGS=(
 # Link libraries
 LIBS=(-lc -lm -lgcc)
 
-"$DOCKER_DIR/docker-shell.sh" ${PREFIX}gcc \
+${PREFIX}gcc \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
@@ -130,7 +127,7 @@ if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then
     echo "Size: $SIZE"
     echo ""
     echo "To run in QEMU:"
-    echo "  ./docker/docker-shell.sh qemu-aarch64 -plugin /libinsn.so <output-elf>"
+    echo "  qemu-aarch64 -plugin /libinsn.so <output-elf>"
     echo ""
 else
     echo "Error: Compilation failed"

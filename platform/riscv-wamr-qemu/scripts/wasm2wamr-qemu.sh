@@ -8,7 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WAMR_QEMU_DIR="$(dirname "$SCRIPT_DIR")"
 DOCKER_DIR="$WAMR_QEMU_DIR/../../docker"
 PROJECT_ROOT="$WAMR_QEMU_DIR/../.."
-WAMR_ROOT=/opt/wamr
+WAMR_ROOT=/opt/wamr-riscv
+PATH=$WAMR_ROOT/bin/:$PATH
 
 
 
@@ -82,8 +83,8 @@ echo ""
 #
 # https://github.com/bytecodealliance/wasm-micro-runtime/issues/3966
 # https://github.com/bytecodealliance/wasm-micro-runtime/pull/3967
-"$DOCKER_DIR/docker-shell.sh" \
-    wamrc --target=riscv64 \
+wamrc \
+    --target=riscv64 \
     --target-abi=lp64 \
     --cpu=generic-rv64 \
     --cpu-features='+i,+m,+a' \
@@ -126,10 +127,7 @@ CFLAGS=(
 
 # Include directories
 INCLUDES=(
-    -I"$WAMR_ROOT/core/iwasm/include"
-    -I"$WAMR_ROOT/core/shared/utils"
-    -I"$WAMR_ROOT/core/shared/utils/uncommon"
-    -I"$WAMR_ROOT/core/shared/platform/zkvm"
+    -I"$WAMR_ROOT/include"
     -Iwasi/embedded
     -Iplatform/riscv-qemu
 )
@@ -153,7 +151,7 @@ LDFLAGS=(
     -T"$LINKER_SCRIPT"
     -nostartfiles
     -static
-    -L"$WAMR_ROOT"
+    -L"$WAMR_ROOT/lib"
     -liwasm
     -Wl,--gc-sections
     -Wl,-Map="${OUTPUT%.elf}.map"
@@ -162,7 +160,7 @@ LDFLAGS=(
 # Link libraries
 LIBS=(-lc -lm -lgcc)
 
-"$DOCKER_DIR/docker-shell.sh" ${PREFIX}gcc \
+${PREFIX}gcc \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \

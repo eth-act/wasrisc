@@ -62,7 +62,7 @@ cp "$INPUT_WASM" "$TEMP_GUEST_WASM"
 
 # Run w2c2 via Docker to generate C files with "guest" module name
 echo "Transpiling WASM to C..."
-"$SCRIPT_DIR/docker-shell.sh" w2c2 "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+w2c2 "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
 
 # Remove temporary guest.wasm
 rm -f "$TEMP_GUEST_WASM"
@@ -77,7 +77,7 @@ fi
 # Copy w2c2_base.h from Docker container
 echo ""
 echo "Extracting w2c2 runtime header..."
-"$SCRIPT_DIR/docker-shell.sh" cp /opt/w2c2/w2c2/w2c2_base.h "$OUTPUT_DIR/w2c2_base.h"
+cp /opt/w2c2/w2c2/w2c2_base.h "$OUTPUT_DIR/w2c2_base.h"
 
 if [ ! -f "$OUTPUT_DIR/w2c2_base.h" ]; then
     echo "Error: Failed to copy w2c2_base.h"
