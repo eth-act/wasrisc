@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -57,6 +58,29 @@ namespace Example
         public void memoryTest() {
             // 390 MB allocated through wasmAllocate
             // 512 MB in principle available from ziskemu
+            //
+            // Thus around 120 MB are not usable for programs directly:
+            //
+            // * 16 MB stack
+            // * the dotnet runtime footprint for a CLI app is typically
+            //   between 20-40 MB
+            // * noticeably 2 other almost 15 MB large regions within
+            //   the beginning of the first 70 MB of the RAM are unused
+            // * a dozen of < 1 MB unused regions
+            // * additionally another around 25 MB large region at the
+            //   end of the RAM
+            //
+            // During initalization calloc/realloc is called with ever
+            // increasing memory sizes. The 3 larger empty spots seem
+            // to correlate with the ends of these allocations.
+            //
+            // It should be mentioned that realloc is implemented for
+            // the platform as a trivial function returning a fixed
+            // address.
+            //
+            // If possible making sure that during initialization of the
+            // w2c2/dotnet all of the memory is being allocated at once
+            // maybe solves this inefficiency.
             Console.WriteLine("test filling up memory...\n");
 
             int memChunkSz = 1024*1024;
