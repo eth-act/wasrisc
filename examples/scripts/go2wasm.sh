@@ -27,5 +27,5 @@ find "$GO_EXAMPLES_DIR" -maxdepth 2 -name "go.mod" -type f | while read -r go_mo
 
     # Build the Go code to WASM
     cd "$example_dir"
-    GOOS=wasip1 GOARCH=wasm go build -o "$output_wasm" .
+    GOOS=wasip1 GOARCH=wasm go build -buildvcs=false -o "$output_wasm" .
 done

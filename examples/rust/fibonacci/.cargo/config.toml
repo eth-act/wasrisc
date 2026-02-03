@@ -1,7 +1,0 @@
-[target.riscv64gc-unknown-linux-gnu]
-linker = "riscv64-linux-gnu-gcc"
-rustflags = [
-  "-C", "link-arg=-march=rv64imad",
-  "-C", "link-arg=-mabi=lp64d",
-  "-C", "target-feature=+crt-static"
-]

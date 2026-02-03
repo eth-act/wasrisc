@@ -95,7 +95,7 @@ SOURCES=(
     wasi/embedded/wasi.c
 )
 
-"$DOCKER_DIR/docker-shell.sh" riscv64-linux-gnu-gcc \
+riscv64-linux-gnu-gcc \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \

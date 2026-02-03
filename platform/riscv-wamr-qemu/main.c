@@ -1,7 +1,7 @@
-#include "bh_platform.h"
-#include "bh_read_file.h"
 #include "wasm_export.h"
 #include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 extern const char wasmModuleBuffer[];
 extern int wasmModuleBuffer_length;
@@ -16,7 +16,7 @@ int main(void) {
     wasm_module_inst_t module_inst;
     wasm_function_inst_t func;
     wasm_exec_env_t exec_env;
-    uint32 size, stack_size = 16*1024*1024;
+    uint32_t size, stack_size = 16*1024*1024;
 
     wasm_runtime_set_log_level(WASM_LOG_LEVEL_VERBOSE);
 
