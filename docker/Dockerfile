@@ -85,7 +85,7 @@ FROM base AS riscv-gnu-builder
 
 WORKDIR /tmp
 
-RUN git clone --depth 1 https://github.com/riscv/riscv-gnu-toolchain riscv-gnu-toolchain && \
+RUN git clone https://github.com/riscv/riscv-gnu-toolchain riscv-gnu-toolchain && \
     cd riscv-gnu-toolchain && \
     git checkout 311e70f6c55953a624ca670de7c85af38c2b23c2 && \
     CFLAGS="-O2 -g0" CXXFLAGS="-O2 -g0" ./configure \
@@ -161,7 +161,7 @@ WORKDIR /tmp
 # since version 20.
 #
 # https://github.com/llvm/llvm-project/issues/81440
-RUN git clone --depth 1 --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm.git wamr-riscv && \
+RUN git clone --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm.git wamr-riscv && \
     cd wamr-riscv && \
     git checkout e9df4f8169eaafa387b001c0352aec0ea2080ed3 && \
     cmake . \
@@ -204,7 +204,7 @@ ENV PATH="/opt/aarch64-linux-musl-gcc/bin:${PATH}"
 
 WORKDIR /tmp
 
-RUN git clone --depth 1 https://github.com/bytecodealliance/wasm-micro-runtime wamr-aarch64 && \
+RUN git clone https://github.com/bytecodealliance/wasm-micro-runtime wamr-aarch64 && \
     cd wamr-aarch64 && \
     git checkout d7459e80e8c66af9065af009e6a697fc2bfd430e && \
     cmake . \
@@ -237,7 +237,7 @@ FROM base AS w2c2-builder
 
 WORKDIR /tmp
 
-RUN git clone --depth 1 https://github.com/turbolent/w2c2.git w2c2 && \
+RUN git clone https://github.com/turbolent/w2c2.git w2c2 && \
     cd w2c2/w2c2 && \
     git checkout 2a31254683de4a3f6a750c123daa7ddf97631c69 && \
     make
