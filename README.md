@@ -201,7 +201,10 @@ The issue stems from a single massive function `guestInitMemories` spanning over
 
 ### Compilation Times
 
-Compilation times can be significant especially for w2c2. With gcc in combination with higher optimization levels (e.g., `-O3`), expect compilation times of up to 60 minutes for `reva-client-eth` and `stateless`. Using Clang and parallel builds it's possible to improve this to 10-15 minutes though.
+Compilation times can be significant especially for w2c2. With gcc in combination with higher optimization levels (e.g., `-O3`), expect compilation times of up to 60 minutes for `reva-client-eth` and `stateless`. Using recent Clang version and parallel builds it's possible to improve this to 10-15 minutes though.
+
+https://github.com/llvm/llvm-project/issues/81440
+https://github.com/llvm/llvm-project/commit/b06e736982a3568fe2bcea8688550f9e393b7450
 
 ## Advanced Usage
 
