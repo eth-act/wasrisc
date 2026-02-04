@@ -8,7 +8,7 @@ echo "Translating Go to WASM..."
 
 echo "Translating WASM to C..."
 
-./docker/wasm2c-package.sh examples/build-wasm/go/stateless.wasm build/c-packages/stateless
+./platform/wasm2c-package.sh examples/build-wasm/go/stateless.wasm build/c-packages/stateless
 
 echo "Transpiling WASM to CWASM with wasmtime..."
 
