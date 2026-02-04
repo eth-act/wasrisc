@@ -158,11 +158,6 @@ These results have not been taken into account in the "Analysis" section.
 
 ## Known Issues
 
-### WAMR -O3 Bug
-
-Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error.
-Issue: https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
-
 ### Wasmer (LLVM) Bug
 
 The wasmer team is actively working on fixing RISC-V target support.
@@ -180,6 +175,17 @@ For reference, `reva-client-eth` compiled with Clang using `-O3` requires 1.2×1
 
 ### Linking Problem
 
+In general PC-relative jumps can occur. When compiling w2c2 generated C-code it's especially challenging with gcc (see below). With Clang the issue appears significantly less often.
+
+However during WAMR AOT platform runtime the issue also appears.
+
+#### WAMR -O3 Bug
+
+Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error.
+Issue: https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
+
+#### GCC
+
 The `w2c2 optimized` pipeline for the `stateless` program fails to link when using non-zero optimization levels, producing the error:
 
 ```
@@ -195,7 +201,7 @@ The issue stems from a single massive function `guestInitMemories` spanning over
 
 ### Compilation Times
 
-For higher optimization levels (e.g., `-O3`), expect compilation times of up to 10-15 minutes for `reva-client-eth` and `stateless`.
+Compilation times can be significant especially for w2c2. With gcc in combination with higher optimization levels (e.g., `-O3`), expect compilation times of up to 60 minutes for `reva-client-eth` and `stateless`. Using Clang and parallel builds it's possible to improve this to 10-15 minutes though.
 
 ## Advanced Usage
 
