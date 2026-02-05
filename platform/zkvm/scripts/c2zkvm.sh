@@ -133,7 +133,7 @@ LIBS=(-lgcc -lm)
 # Remove object files
 rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.o $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
 
-parallel -j$(nproc) "$DOCKER_DIR/docker-shell.sh" clang \
+parallel -j$(nproc) "$PROJECT_ROOT/docker-shell.sh" clang \
     -c \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
@@ -142,7 +142,7 @@ parallel -j$(nproc) "$DOCKER_DIR/docker-shell.sh" clang \
     "${ASM_SOURCES[@]}" \
     $GUEST_DIR/s0*.c 2>&1
 
-"$DOCKER_DIR/docker-shell.sh" clang \
+"$PROJECT_ROOT/docker-shell.sh" clang \
     *.o \
     "${LDFLAGS[@]}" \
     "${LIBS[@]}" \

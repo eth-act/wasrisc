@@ -69,7 +69,7 @@ cp "$INPUT_WASM" "$TEMP_GUEST_WASM"
 rm -f $OUTPUT_DIR/s00000*.c
 
 echo "Transpiling WASM to C..."
-"$SCRIPT_DIR/docker-shell.sh" w2c2 -f 256 -p "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+"$PROJECT_ROOT/docker-shell.sh" w2c2 -f 256 -p "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
 
 # Remove temporary guest.wasm
 rm -f "$TEMP_GUEST_WASM"

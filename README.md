@@ -102,12 +102,13 @@ Unfortunately, we were unable to benchmark the most promising approaches (`wasme
 ### Key Findings
 
 - **Direct compilation is fastest**: As expected, compiling directly to the target architecture provides the best performance
-- **Optimization level is critical for w2c2**: Using GCC optimization flags provides a 6x speedup compared to unoptimized `-O0` builds
+- **Optimization level is critical for w2c2**: Using Clang optimization flags provides a 3-4x speedup compared to unoptimized `-O0` builds
 - **Cranelift-based pipelines perform best**: Among the WASM-based approaches, pipelines using Cranelift for code generation show the best performance
 - **Performance overhead of WASM intermediate step**: The ratio of instructions required when compiling via `wasmtime` versus direct compilation is:
   - 2.8x for `reva-client-eth` (Rust)
   - 3.7x for `stateless` (Go)
-- **WASM quality comparison**: The relatively similar overhead ratios suggest that Go's WASM compiler generates code quality comparable to Rust's WASM compiler
+- **Effective performance comparison**: The relatively similar overhead ratios suggest that Go's WASM compiler generates code quality comparable to Rust's WASM compiler
+- **WASM code quality**: Generally Rust's WASM output has a more optimized toolchain. Go's generated code currently produces a lot of `br_table` statements for blocks such as for loops in order to support context switches to Go routines. Especially in synthetic benchmarks such as Fibonacci without tail call optimization the runtime overhead can be huge. https://github.com/golang/go/issues/65440
 - **WAMR -O0 performance**: Currently falls between `w2c2` and `wasmtime` in terms of instruction count
 
 ### Binary Sizes
