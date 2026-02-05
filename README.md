@@ -231,6 +231,17 @@ U32 testmodule__testfunc(void* p, U32 a, U32 b) {
 }
 ```
 
+#### Dotnet
+
+Dotnet imports are more complex than for Go, already because the build artifacts are wrapped as wasip2 components. In addition there are multiple FFI mechanisms.
+
+The currently implemented strategy revolves around unmanaged code marked as `UnmanagedCallersOnly` because managed code is wrapped in a binary blob within the w2c2 output. In order to call the unmanaged code from managed code a function pointer ("`delegate`") is used.
+
+Alternatively a fairly popular project is `componentize-dotnet`. However it is still experimental and various not trivial to upgrade dependencies marked as alpha. The glue mechanism used by the project is from `wit-bindgen`. While it can easily map even complex interface structures, unfortunately subtleties such as `unsigned` flags (`uint`) get dropped during the process. It would still be useful to evaluate the underlying mechanism.
+
+https://github.com/bytecodealliance/componentize-dotnet
+https://github.com/bytecodealliance/wit-bindgen
+
 ### Memory Limits
 
 For embedded targets with limited memory, use `debug.SetMemoryLimit()`:
