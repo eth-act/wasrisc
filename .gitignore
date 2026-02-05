@@ -1,5 +1,7 @@
+/build
 *.o
 *.wasm
 *.wat
 example.*.bin
+*.sw?
 
