@@ -108,7 +108,7 @@ Unfortunately, we were unable to benchmark the most promising approaches (`wasme
   - 2.8x for `reva-client-eth` (Rust)
   - 3.7x for `stateless` (Go)
 - **Effective performance comparison**: The relatively similar overhead ratios suggest that Go's WASM compiler generates code quality comparable to Rust's WASM compiler
-- **WASM code quality**: Generally Rust's WASM output has a more optimized toolchain. Go's generated code currently produces a lot of `br_table` statements for blocks such as for loops in order to support context switches to Go routines. Especially in synthetic benchmarks such as Fibonacci without tail call optimization the runtime overhead can be huge. https://github.com/golang/go/issues/65440
+- **WASM code quality**: Generally Rust's WASM output has a more optimized toolchain. Go's generated code currently produces a lot of `blocks` statements e.g. for loops in order to support context switches to Go routines. Especially in synthetic benchmarks such as Fibonacci without tail call optimization the runtime overhead can be huge. https://github.com/golang/go/issues/65440
 - **WAMR -O0 performance**: Currently falls between `w2c2` and `wasmtime` in terms of instruction count
 
 ### Binary Sizes
