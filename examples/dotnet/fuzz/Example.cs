@@ -92,9 +92,15 @@ namespace Example
                 example.asciiImage();
             }
 
-            uint a = 7;
-            uint b = 13;
-            Console.WriteLine($"testfunc(a={a}, b={b}) = {CustomImports.Testfunc(a, b)}");
+            int a = 7;
+            int b = 13;
+            Console.WriteLine($"testfunc(a={a}, b={b}) = {CustomImports.testfunc(a, b)}");
+
+            CustomImports.printk(0x11111111);
+            CustomImports.printk(0xc0ffee);
+            CustomImports.printk(0xffffffff);
+            CustomImports.printk(123);
+            CustomImports.printk(0x5);
         }
     }
 }
