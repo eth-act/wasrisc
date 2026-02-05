@@ -56,7 +56,7 @@ The benchmark environment is dockerized and includes:
 
 
 
-Run the `./docker/docker-shell.sh run_all_benchmarks_with_report.sh` script to compare different compilation methods for the Ethereum state transition function. These scripts will:
+Run the `./docker-shell.sh run_all_benchmarks_with_report.sh` script to compare different compilation methods for the Ethereum state transition function. These scripts will:
 
 1. Compile Rust and Go implementations using various methods
 2. Execute the compiled binaries under QEMU with the `libinsn` plugin to count instructions

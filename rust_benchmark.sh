@@ -8,7 +8,7 @@ echo "Translating Rust to WASM..."
 
 echo "Translating WASM to C..."
 
-./docker/wasm2c-package.sh examples/build-wasm/rust/reva-client-eth.wasm build/c-packages/reva-client-eth/
+./platform/wasm2c-package.sh examples/build-wasm/rust/reva-client-eth.wasm build/c-packages/reva-client-eth/
 
 echo "Transpiling WASM to CWASM with wasmtime..."
 
