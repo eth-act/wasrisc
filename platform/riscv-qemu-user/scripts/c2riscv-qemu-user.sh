@@ -2,7 +2,7 @@
 set -e
 
 # c2riscv-qemu-user.sh - Compile C package to RISC-V QEMU virt binary
-# Usage: ./platform/riscv-qemu/scripts/c2riscv-qemu-user.sh <guest-c-package-dir> <output-elf>
+# Usage: ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh <guest-c-package-dir> <output-elf>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RISCV_QEMU_DIR="$(dirname "$SCRIPT_DIR")"
@@ -90,8 +90,9 @@ INCLUDES=(
 
 # Source files
 SOURCES=(
-    platform/riscv-qemu/main.c
+    platform/riscv-qemu-user/main.c
     "$GUEST_DIR/guest.c"
+    $GUEST_DIR/s0*.c
     w2c2/embedded/wasi.c
 )
 
