@@ -6,7 +6,7 @@ set -eu -o pipefail
 # Usage: ./docker/wasm2c-package.sh input.wasm output-dir/
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$SCRIPT_DIR/.."
 
 # Check arguments
 if [ $# -lt 2 ]; then
