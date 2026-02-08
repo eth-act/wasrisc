@@ -73,12 +73,14 @@ echo "Compiling..."
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    -march=rv64imad
-    -mabi=lp64d
+    --target=riscv64
+    -march=rv64ima_zicsr
+    -mabi=lp64
     -mcmodel=medany
     -static
-    -ffunction-sections
-    -fdata-sections
+    -include stdbool.h
+    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
+    --gcc-toolchain=/opt/riscv-newlib
     $OPT_LEVEL
 )
 
@@ -96,7 +98,7 @@ SOURCES=(
     w2c2/embedded/wasi.c
 )
 
-riscv64-linux-gnu-gcc \
+clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
