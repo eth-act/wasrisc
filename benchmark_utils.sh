@@ -29,6 +29,8 @@ run_qemu() {
         exit 1
     fi
 
+    echo 'file name'
+    echo "$output"
     echo 'raw output'
     cat "$output"
 
