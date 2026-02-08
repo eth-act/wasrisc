@@ -123,7 +123,7 @@ LDFLAGS=(
 # Link libraries
 LIBS=(-lm -lgcc)
 
-"$PROJECT_ROOT/docker-shell.sh" clang \
+clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
