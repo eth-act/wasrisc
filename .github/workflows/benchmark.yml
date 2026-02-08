@@ -1,7 +1,7 @@
 name: Benchmark Report
 
 on:
-  pull_request:
+  push:
     branches:
       - '*'
 
