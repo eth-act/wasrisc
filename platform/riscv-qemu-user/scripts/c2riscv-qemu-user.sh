@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # c2riscv-qemu-user.sh - Compile C package to RISC-V QEMU virt binary
 # Usage: ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh <guest-c-package-dir> <output-elf>
@@ -62,7 +62,7 @@ fi
 mkdir -p "$(dirname "$OUTPUT")"
 
 echo "======================================"
-echo "C to RISC-V QEMU Compilation"
+echo "C to RISC-V QEMU User Compilation"
 echo "======================================"
 echo "Guest package: $GUEST_DIR"
 echo "Output binary: $OUTPUT"

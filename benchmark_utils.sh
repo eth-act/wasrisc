@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 declare -A RESULTS
 
 run_qemu() {
@@ -26,6 +28,9 @@ run_qemu() {
         echo "ERROR: '$success_string' not found in output for: $path" >&2
         exit 1
     fi
+
+    echo 'raw output'
+    cat "$output"
 
     local insns
     if ! insns=$(echo "$output" | grep -oP 'total insns: \K[0-9]+'); then
