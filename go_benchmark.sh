@@ -27,6 +27,8 @@ echo "Compiling C to RISCV..."
 
 OPT_LEVEL="-O0" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/stateless/ build/bin/stateless.riscv.O0.elf
 ls -l build/bin/
+# On the CI runner this seems to trigger an OOM error:
+# clang: error: unable to execute command: Killed
 #OPT_LEVEL="-O3" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/stateless/ build/bin/stateless.riscv.O3.elf
 (cd examples/go/stateless; GOOS=linux GOARCH=riscv64 go build -buildvcs=false -o ./stateless)
 (cd examples/build-wasm/go/stateless-by-wasmtime/; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static'   cargo build --release --target riscv64gc-unknown-linux-gnu)
