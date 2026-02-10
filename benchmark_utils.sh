@@ -29,10 +29,8 @@ run_qemu() {
         exit 1
     fi
 
-    echo 'file name'
+    echo 'output...'
     echo "$output"
-    echo 'raw output'
-    cat "$output"
 
     echo 'extract instruction count'
     local insns
