@@ -8,7 +8,7 @@ BUILD_DIR="$EXAMPLES_DIR/build-wasm/rust"
 GO_EXAMPLES_DIR="$EXAMPLES_DIR/rust"
 
 echo "======================================"
-echo "Building Go Examples to WASM"
+echo "Building Rust Examples to WASM"
 echo "======================================"
 echo ""
 

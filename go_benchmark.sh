@@ -25,8 +25,9 @@ echo "Transpiling WASM to WAMR AOT with wamrc..."
 
 echo "Compiling C to RISCV..."
 
-OPT_LEVEL="-O0" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/stateless/ build/bin/stateless.riscv.O0.elf
-#OPT_LEVEL="-O3 -fno-reorder-blocks" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/stateless/ build/bin/stateless.riscv.O3.elf
+OPT_LEVEL="-O0" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/stateless/ build/bin/stateless.riscv.O0.elf
+ls -l build/bin/
+#OPT_LEVEL="-O3" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/stateless/ build/bin/stateless.riscv.O3.elf
 (cd examples/go/stateless; GOOS=linux GOARCH=riscv64 go build -buildvcs=false -o ./stateless)
 (cd examples/build-wasm/go/stateless-by-wasmtime/; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static'   cargo build --release --target riscv64gc-unknown-linux-gnu)
 (cd examples/build-wasm/go/stateless-by-wasmer/; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static'   cargo build --release --target riscv64gc-unknown-linux-gnu)
@@ -40,7 +41,8 @@ echo "Executing with qemu-riscv64"
 success_string="ExecuteStateless succeeded!"
 
 run_qemu "$success_string" "false" "native"         "examples/go/stateless/stateless"
-run_qemu "$success_string" "false" "w2c2-O0"       "build/bin/stateless.riscv.O0.elf"
+run_qemu "$success_string" "true" "w2c2-O0"         "build/bin/stateless.riscv.O0.elf"
+#run_qemu "$success_string" "true" "w2c2-O3"         "build/bin/stateless.riscv.O3.elf"
 run_qemu "$success_string" "false" "wasmtime"       "examples/build-wasm/go/stateless-by-wasmtime/target/riscv64gc-unknown-linux-gnu/release/standalone"
 run_qemu "$success_string" "false" "wasmer"         "examples/build-wasm/go/stateless-by-wasmer/target/riscv64gc-unknown-linux-gnu/release/standalone"
 run_qemu "$success_string" "true"  "wamr"           "build/bin/stateless.wamr.elf"

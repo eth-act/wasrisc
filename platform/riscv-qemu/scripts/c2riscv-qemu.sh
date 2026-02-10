@@ -33,6 +33,15 @@ fi
 GUEST_DIR="$1"
 OUTPUT="$2"
 
+if [ -n "$OPT_LEVEL" ]; then
+    OPT_LEVEL="$OPT_LEVEL"
+    echo "Using provided OPT_LEVEL: $OPT_LEVEL"
+else
+    # OPT_LEVEL is not set, set default value
+    OPT_LEVEL="-O0"
+    echo "OPT_LEVEL not set, using default: $OPT_LEVEL"
+fi
+
 # Change to project root
 cd "$PROJECT_ROOT"
 
@@ -76,8 +85,7 @@ CFLAGS=(
     -specs=nosys.specs
     -D__bool_true_false_are_defined
     -include stdbool.h
-    -O0
-    -g
+    $OPT_LEVEL
 )
 
 # Include directories
@@ -123,7 +131,7 @@ LDFLAGS=(
 # Link libraries
 LIBS=(-lm -lgcc)
 
-"$DOCKER_DIR/docker-shell.sh" clang \
+clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \

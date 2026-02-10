@@ -6,7 +6,7 @@ set -eu -o pipefail
 # Usage: ./docker/wasm2c-package.sh input.wasm output-dir/
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROJECT_ROOT="$SCRIPT_DIR/.."
 
 # Check arguments
 if [ $# -lt 2 ]; then
@@ -69,7 +69,7 @@ cp "$INPUT_WASM" "$TEMP_GUEST_WASM"
 rm -f $OUTPUT_DIR/s00000*.c
 
 echo "Transpiling WASM to C..."
-"$SCRIPT_DIR/docker-shell.sh" w2c2 -f 256 -p "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
+w2c2 -f 256 -p "$TEMP_GUEST_WASM" "$OUTPUT_DIR/guest.c"
 
 # Remove temporary guest.wasm
 rm -f "$TEMP_GUEST_WASM"
