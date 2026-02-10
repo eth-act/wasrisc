@@ -34,12 +34,14 @@ run_qemu() {
     echo 'raw output'
     cat "$output"
 
+    echo 'extract instruction count'
     local insns
     if ! insns=$(echo "$output" | grep -oP 'total insns: \K[0-9]+'); then
         echo "ERROR: Could not extract instruction count from output for: $path" >&2
         exit 1
     fi
 
+    echo 'store instruction count'
     RESULTS["$key"]=$insns
 }
 
