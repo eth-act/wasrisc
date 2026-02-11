@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu -o pipefail
+set -e
 
 # wasm2c-package.sh - Package WASM to C with all dependencies
 # Usage: ./docker/wasm2c-package.sh input.wasm output-dir/

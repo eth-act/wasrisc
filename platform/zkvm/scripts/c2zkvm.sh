@@ -1,7 +1,6 @@
 #!/bin/bash
 
-set -eu -o pipefail
-set -x # debug
+set -e
 
 # c2zkvm.sh - Compile C package to zkvm RISC-V binary
 # Usage: ./platform/zkvm/scripts/c2zkvm.sh <guest-c-package-dir> <output-elf>
