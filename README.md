@@ -88,10 +88,10 @@ See the "Known Issues" section for details.
 
 ## Benchmark Results on RISCV
 
-| Program | w2c2<br>-O0 | w2c2<br>optimized | wasmtime | wasmer<br>(cranelift) | wasmer<br>(llvm) | WAMR<br>-O0 | WAMR<br>-O3 | directly |
+| Program | w2c2<br>-O0 | w2c2<br>-O3 | wasmtime | wasmer<br>(cranelift) | wasmer<br>(llvm) | WAMR<br>-O0 | WAMR<br>-O3 | directly |
 |---|---|---|---|---|---|---|---|---|
-| `reva-client-eth` (Rust) | 7,887,190,279 | 1,419,050,123<br>(-O1) | 1,074,488,397 | doesn't work | ? | didn't check | ? | 388,564,723 |
-| `stateless` (Go) | 12,866,052,519 | 2,118,257,727<br>(-O3) | 874,758,419 | 953,874,491 | ? | 5,427,433,654 | ? | 236,265,327 |
+| `reva-client-eth` (Rust) | 4,543,397,058 | 1,337,696,305 | 1,074,488,397 | doesn't work | ? | didn't check | ? | 388,564,723 |
+| `stateless` (Go) | 6,039,298,186 | 2,154,036,727 | 874,758,419 | 953,874,491 | ? | 5,427,433,654 | ? | 236,265,327 |
 
 ## Analysis
 
@@ -102,12 +102,13 @@ Unfortunately, we were unable to benchmark the most promising approaches (`wasme
 ### Key Findings
 
 - **Direct compilation is fastest**: As expected, compiling directly to the target architecture provides the best performance
-- **Optimization level is critical for w2c2**: Using GCC optimization flags provides a 6x speedup compared to unoptimized `-O0` builds
+- **Optimization level is critical for w2c2**: Using Clang optimization flags provides a 3-4x speedup compared to unoptimized `-O0` builds
 - **Cranelift-based pipelines perform best**: Among the WASM-based approaches, pipelines using Cranelift for code generation show the best performance
 - **Performance overhead of WASM intermediate step**: The ratio of instructions required when compiling via `wasmtime` versus direct compilation is:
   - 2.8x for `reva-client-eth` (Rust)
   - 3.7x for `stateless` (Go)
-- **WASM quality comparison**: The relatively similar overhead ratios suggest that Go's WASM compiler generates code quality comparable to Rust's WASM compiler
+- **Effective performance comparison**: The relatively similar overhead ratios suggest that Go's WASM compiler generates code quality comparable to Rust's WASM compiler
+- **WASM code quality**: Generally Rust's WASM output has a more optimized toolchain. Go's generated code currently produces a lot of `blocks` statements e.g. for loops in order to support context switches to Go routines. Especially in synthetic benchmarks such as Fibonacci without tail call optimization the runtime overhead can be huge. https://github.com/golang/go/issues/65440
 - **WAMR -O0 performance**: Currently falls between `w2c2` and `wasmtime` in terms of instruction count
 
 ### Binary Sizes
@@ -158,11 +159,6 @@ These results have not been taken into account in the "Analysis" section.
 
 ## Known Issues
 
-### WAMR -O3 Bug
-
-Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error.
-Issue: https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
-
 ### Wasmer (LLVM) Bug
 
 The wasmer team is actively working on fixing RISC-V target support.
@@ -180,6 +176,17 @@ For reference, `reva-client-eth` compiled with Clang using `-O3` requires 1.2×1
 
 ### Linking Problem
 
+In general PC-relative jumps can occur. When compiling w2c2 generated C-code it's especially challenging with gcc (see below). With Clang the issue appears significantly less often.
+
+However during WAMR AOT platform runtime the issue also appears.
+
+#### WAMR -O3 Bug
+
+Running WAMR with non-zero optimization levels on RISC-V currently fails with a relocation error.
+Issue: https://github.com/bytecodealliance/wasm-micro-runtime/issues/4765
+
+#### GCC
+
 The `w2c2 optimized` pipeline for the `stateless` program fails to link when using non-zero optimization levels, producing the error:
 
 ```
@@ -195,7 +202,10 @@ The issue stems from a single massive function `guestInitMemories` spanning over
 
 ### Compilation Times
 
-For higher optimization levels (e.g., `-O3`), expect compilation times of up to 60 minutes for `reva-client-eth` and `stateless`.
+Compilation times can be significant especially for w2c2. With gcc in combination with higher optimization levels (e.g., `-O3`), expect compilation times of up to 60 minutes for `reva-client-eth` and `stateless`. Using recent Clang version and parallel builds it's possible to improve the build time for `stateless` to 10-15 minutes though. `reva-client-eth` can even be built in 2-3 minutes.
+
+https://github.com/llvm/llvm-project/issues/81440
+https://github.com/llvm/llvm-project/commit/b06e736982a3568fe2bcea8688550f9e393b7450
 
 ## Advanced Usage
 
@@ -257,4 +267,4 @@ func main() {
 
 ## License
 
-MIT + Apache
+MIT + Apache + BSD

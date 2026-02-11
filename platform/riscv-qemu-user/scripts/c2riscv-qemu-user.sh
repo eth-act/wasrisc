@@ -2,7 +2,7 @@
 set -e
 
 # c2riscv-qemu-user.sh - Compile C package to RISC-V QEMU virt binary
-# Usage: ./platform/riscv-qemu/scripts/c2riscv-qemu-user.sh <guest-c-package-dir> <output-elf>
+# Usage: ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh <guest-c-package-dir> <output-elf>
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RISCV_QEMU_DIR="$(dirname "$SCRIPT_DIR")"
@@ -62,7 +62,7 @@ fi
 mkdir -p "$(dirname "$OUTPUT")"
 
 echo "======================================"
-echo "C to RISC-V QEMU Compilation"
+echo "C to RISC-V QEMU User Compilation"
 echo "======================================"
 echo "Guest package: $GUEST_DIR"
 echo "Output binary: $OUTPUT"
@@ -73,29 +73,32 @@ echo "Compiling..."
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    -march=rv64imad
-    -mabi=lp64d
+    --target=riscv64
+    -march=rv64ima_zicsr
+    -mabi=lp64
     -mcmodel=medany
     -static
-    -ffunction-sections
-    -fdata-sections
+    -include stdbool.h
+    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
+    --gcc-toolchain=/opt/riscv-newlib
     $OPT_LEVEL
 )
 
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Iwasi/embedded
+    -Iw2c2/embedded
 )
 
 # Source files
 SOURCES=(
-    platform/riscv-qemu/main.c
+    platform/riscv-qemu-user/main.c
     "$GUEST_DIR/guest.c"
-    wasi/embedded/wasi.c
+    $GUEST_DIR/s0*.c
+    w2c2/embedded/wasi.c
 )
 
-riscv64-linux-gnu-gcc \
+clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \

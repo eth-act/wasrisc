@@ -33,6 +33,15 @@ fi
 GUEST_DIR="$1"
 OUTPUT="$2"
 
+if [ -n "$OPT_LEVEL" ]; then
+    OPT_LEVEL="$OPT_LEVEL"
+    echo "Using provided OPT_LEVEL: $OPT_LEVEL"
+else
+    # OPT_LEVEL is not set, set default value
+    OPT_LEVEL="-O0"
+    echo "OPT_LEVEL not set, using default: $OPT_LEVEL"
+fi
+
 # Change to project root
 cd "$PROJECT_ROOT"
 
@@ -69,36 +78,39 @@ PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
+    --target=riscv64
     -march=rv64ima_zicsr
     -mabi=lp64
     -mcmodel=medany
     -specs=nosys.specs
     -D__bool_true_false_are_defined
-    -ffunction-sections
-    -fdata-sections
-    -O0
-    -g
+    -include stdbool.h
+    $OPT_LEVEL
 )
 
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Iwasi/embedded
+    -Iw2c2/embedded
     -Iplatform/riscv-qemu
 )
 
 # Source files
 SOURCES=(
     platform/riscv-qemu/main.c
-    platform/riscv-qemu/syscalls.c
     platform/riscv-qemu/custom_imports.c
     "$GUEST_DIR/guest.c"
-    wasi/embedded/wasi.c
-    wasi/embedded/wasip2.c
+    $GUEST_DIR/s0*.c
+    w2c2/embedded/wasi.c
+    w2c2/embedded/wasip2.c
+    w2c2/embedded/memlib.c
 )
 
 # Assembly source
-ASM_SOURCE=platform/riscv-qemu/startup.S
+ASM_SOURCES=(
+    platform/riscv-qemu/startup.S
+    w2c2/embedded/memops.S
+)
 
 # Linker script
 LINKER_SCRIPT=platform/riscv-qemu/virt.ld
@@ -107,19 +119,23 @@ LINKER_SCRIPT=platform/riscv-qemu/virt.ld
 LDFLAGS=(
     -T"$LINKER_SCRIPT"
     -nostartfiles
+    -nostdlib
     -static
+    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
+    --gcc-toolchain=/opt/riscv-newlib
+    -g
     -Wl,--gc-sections
     -Wl,-Map="${OUTPUT%.elf}.map"
 )
 
 # Link libraries
-LIBS=(-lc -lm -lgcc)
+LIBS=(-lm -lgcc)
 
-"$DOCKER_DIR/docker-shell.sh" ${PREFIX}gcc \
+clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
-    "$ASM_SOURCE" \
+    "${ASM_SOURCES[@]}" \
     "${LDFLAGS[@]}" \
     "${LIBS[@]}" \
     -o "$OUTPUT" 2>&1

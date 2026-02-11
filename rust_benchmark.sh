@@ -21,8 +21,8 @@ echo "Transpiling WASM to WASMU with wasmer..."
 
 echo "Compiling C to RISCV..."
 
-OPT_LEVEL="-O0" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O0.elf
-OPT_LEVEL="-O1" ./platform/riscv-qemu-user/scripts/c2riscv-qemu-user.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O1.elf
+OPT_LEVEL="-O0" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O0.elf
+OPT_LEVEL="-O3" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O3.elf
 (cd examples/rust/reva-client-eth; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static' cargo build --bin=reva-client-eth --target riscv64gc-unknown-linux-gnu --release)
 
 (cd examples/build-wasm/rust/reva-client-eth-by-wasmtime/; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static'   cargo build --release --target riscv64gc-unknown-linux-gnu)
@@ -35,8 +35,8 @@ echo "Executing with qemu-riscv64"
 success_string="0xc2558f8143d5f5acb8382b8cb2b8e2f1a10c8bdfeededad850eaca048ed85d8f"
 
 run_qemu "$success_string" "false" "native"         "examples/rust/reva-client-eth/target/riscv64gc-unknown-linux-gnu/release/reva-client-eth"
-run_qemu "$success_string" "false" "w2c2-O0"       "build/bin/reva-client-eth.riscv.O0.elf"
-run_qemu "$success_string" "false" "w2c2-O1"       "build/bin/reva-client-eth.riscv.O1.elf"
+run_qemu "$success_string" "true"  "w2c2-O0"        "build/bin/reva-client-eth.riscv.O0.elf"
+run_qemu "$success_string" "true"  "w2c2-O3"        "build/bin/reva-client-eth.riscv.O3.elf"
 run_qemu "$success_string" "false" "wasmtime"       "examples/build-wasm/rust/reva-client-eth-by-wasmtime/target/riscv64gc-unknown-linux-gnu/release/standalone"
 
 # `reva-client-eth` via `wasmer` does not work for some reason. The root cause is not yet known. The error is:
