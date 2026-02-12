@@ -1,6 +1,6 @@
 /* Custom WASM imports for zkvm target
  *
- * This file implements custom functions for Go programs using //go:wasmimport.
+ * This file implements custom functions for Dotnet and Go programs. See README.md for more details.
  *
  * This will be used to implement zkvm precompiles and zkvm specific functions that the guest
  * program needs.
@@ -38,10 +38,10 @@ void testmodule__shutdown(void* instance) {
     exit(0);
 }
 
-U32 testmodule__input_data_len(void* instance) {
+U32 testmodule__inputX2DdataX2Dlen(void* instance) {
     return 0;
 }
 
-U32 testmodule__input_data(void* instance, U32 index) {
+U32 testmodule__inputX2Ddata(void* instance, U32 index) {
     return 0;
 }
