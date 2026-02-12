@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 # wasm2riscv-wamr-qemu - Compile WASM to WAMR RISC-V QEMU binary
 # Usage: ./platform/riscv-wamr-qemu/scripts/wasm2riscv-wamr-qemu.sh <guest-c-package-dir> <output-elf>
