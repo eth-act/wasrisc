@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # wasm2riscv-wamr-qemu - Compile WASM to WAMR RISC-V QEMU binary
 # Usage: ./platform/riscv-wamr-qemu/scripts/wasm2riscv-wamr-qemu.sh <guest-c-package-dir> <output-elf>
@@ -24,12 +24,12 @@ if [ $# -lt 2 ]; then
     echo "  output-elf           Output RISC-V ELF binary path"
     echo ""
     echo "Example:"
-    echo "  $0 build/.c-packages/println build/bin/println.riscv.elf"
+    echo "  $0 examples/build-wasm/go/println.wasm build/bin/println.wamr.elf"
     echo ""
     echo "To run in QEMU:"
     echo "  ./docker/docker-shell.sh qemu-system-riscv64 -machine virt \\"
     echo "    -m 1024M -d plugin -plugin /libinsn.so \\"
-    echo "    -kernel build/bin/println.riscv.elf -nographic \\"
+    echo "    -kernel build/bin/println.wamr.elf -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
     echo ""
     exit 1
@@ -90,7 +90,7 @@ wamrc \
     --cpu-features='+i,+m,+a' \
     --opt-level=0 \
     --size-level=1 \
-    --bounds-checks=1 \
+    --bounds-checks=0 \
     -o $OUTPUT.riscv64.wamr $1
 
 gcc platform/riscv-wamr-qemu/file2c/file2c.c \
@@ -182,7 +182,7 @@ if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then
     echo "Size: $SIZE"
     echo ""
     echo "To run in QEMU:"
-    echo "  ./docker/docker-shell.sh qemu-system-riscv64 -machine virt \\"
+    echo "  ./docker-shell.sh qemu-system-riscv64 -machine virt \\"
     echo "    -m 1024M -d plugin -plugin /libinsn.so \\"
     echo "    -kernel $OUTPUT -nographic \\"
     echo "    -semihosting-config enable=on,target=native"
