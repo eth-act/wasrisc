@@ -90,8 +90,8 @@ See the "Known Issues" section for details.
 
 | Program | w2c2<br>-O0 | w2c2<br>-O3 | wasmtime | wasmer<br>(cranelift) | wasmer<br>(llvm) | WAMR<br>-O0 | WAMR<br>-O3 | directly |
 |---|---|---|---|---|---|---|---|---|
-| `reva-client-eth` (Rust) | 4,543,397,058 | 1,337,696,305 | 1,074,488,397 | doesn't work | ? | didn't check | ? | 388,564,723 |
-| `stateless` (Go) | 6,039,298,186 | 2,154,036,727 | 874,758,419 | 953,874,491 | ? | 5,427,433,654 | ? | 236,265,327 |
+| `reva-client-eth` (Rust) | 4,543,397,058 | 1,337,696,305 | 1,074,488,397 | doesn't work | ? | 2,472,559,016 | ? | 388,564,723 |
+| `stateless` (Go) | 6,039,298,186 | 2,154,036,727 | 874,758,419 | 953,874,491 | ? | 3,526,934,350 | ? | 236,265,327 |
 
 ## Analysis
 

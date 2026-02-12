@@ -93,6 +93,7 @@ INCLUDES=(
 # Source files
 SOURCES=(
     platform/riscv-qemu-user/main.c
+    platform/riscv-qemu-user/custom_imports.c
     "$GUEST_DIR/guest.c"
     $GUEST_DIR/s0*.c
     w2c2/embedded/wasi.c

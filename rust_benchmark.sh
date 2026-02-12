@@ -19,6 +19,10 @@ echo "Transpiling WASM to WASMU with wasmer..."
 # TODO: Cranelift is used for now because LLVM support is buggy. Once LLVM is fixed in wasmer use `--llvm` flag instead of `cranelift`; https://github.com/wasmerio/wasmer/issues/5951#issuecomment-3632904384
 /root/.wasmer/bin/wasmer compile --cranelift --target riscv64gc-unknown-linux-gnu  examples/build-wasm/rust/reva-client-eth.wasm -o examples/build-wasm/rust/reva-client-eth-by-wasmer/src/reva-client-eth.wasmu
 
+echo "Transpiling WASM to WAMR AOT with wamrc..."
+
+./platform/riscv-wamr-qemu/scripts/wasm2wamr-qemu.sh examples/build-wasm/rust/reva-client-eth.wasm build/bin/reva-client-eth.wamr.elf
+
 echo "Compiling C to RISCV..."
 
 OPT_LEVEL="-O0" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O0.elf
@@ -38,6 +42,7 @@ run_qemu "$success_string" "false" "native"         "examples/rust/reva-client-e
 run_qemu "$success_string" "true"  "w2c2-O0"        "build/bin/reva-client-eth.riscv.O0.elf"
 run_qemu "$success_string" "true"  "w2c2-O3"        "build/bin/reva-client-eth.riscv.O3.elf"
 run_qemu "$success_string" "false" "wasmtime"       "examples/build-wasm/rust/reva-client-eth-by-wasmtime/target/riscv64gc-unknown-linux-gnu/release/standalone"
+run_qemu "$success_string" "true"  "wamr"           "build/bin/reva-client-eth.wamr.elf"
 
 # `reva-client-eth` via `wasmer` does not work for some reason. The root cause is not yet known. The error is:
 # Error: RuntimeError: out of bounds memory access

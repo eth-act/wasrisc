@@ -51,6 +51,10 @@ func Read[T any]() T {
 	return result
 }
 
+//go:wasmimport testmodule shutdown
+//go:noescape
+func shutdown()
+
 func main() {
 	witnessBytes := Read[[]byte]()
 	fmt.Printf("Read witness (%d bytes)\n", len(witnessBytes))
@@ -110,4 +114,9 @@ func main() {
 	if receiptRoot == (common.Hash{}) {
 		panic("Receipt root is empty")
 	}
+
+	// During exit a fatal runtime error occurs in WAMR when
+	// compiled with --bounds-check=0. An early shutdown provides
+	// a reliable workaround.
+	shutdown()
 }
