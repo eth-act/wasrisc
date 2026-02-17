@@ -85,7 +85,7 @@ CFLAGS=(
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
-    -Iwasi/embedded
+    -Iw2c2/embedded
     -Iplatform/amd64
 )
 
@@ -95,7 +95,7 @@ SOURCES=(
     platform/amd64/amd64.c
     platform/amd64/custom_imports.c
     "$GUEST_DIR/guest.c"
-    wasi/embedded/wasi.c
+    w2c2/embedded/wasi.c
 )
 
 # Link libraries

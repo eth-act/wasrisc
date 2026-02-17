@@ -2,6 +2,7 @@
 
 .section .text.init
 .global _start
+.global exit
 
 _start:
     /* Set up stack pointer */
@@ -26,8 +27,13 @@ bss_done:
     /* Call main */
     call main
 
-    /* If main returns, call exit with return value */
-    call exit
+exit:
+    # https://github.com/xypron/riscv_test_payload (MIT-licensed)
+    li a7, 0x53525354   # SBI extension: SRST (System Reset)
+    li a6, 0            # Function: system reset
+    li a0, 0            # Reset type: shutdown
+    li a1, 0            # Reset reason: no reason
+    ecall               # Perform system shutdown
 
     /* Should never reach here, but just in case loop forever */
 1:  j 1b

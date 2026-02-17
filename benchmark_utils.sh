@@ -16,7 +16,7 @@ run_qemu() {
         fi
     else
         # Include OpenSBI BIOS (-bios default instead of -bios none) such that a shutdown function is present for improved benchmarking.
-        if ! output=$(qemu-system-riscv64 -d plugin -machine virt -m 1024M -plugin /libinsn.so -kernel "$path" -nographic 2>&1); then
+        if ! output=$(qemu-system-riscv64 -d plugin -machine virt -m 2048M -plugin /libinsn.so -kernel "$path" -nographic 2>&1); then
             echo "ERROR: qemu-system-riscv64 failed for: $path" >&2
             exit 1
         fi
