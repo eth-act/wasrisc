@@ -5,11 +5,16 @@ fn main() -> anyhow::Result<()> {
     let wasm_bytes = include_bytes!("stateless.cwasm");
 
     let engine = Engine::default();
+
     let module = unsafe { Module::deserialize(&engine, wasm_bytes)? };
 
     // Create linker first
     let mut linker = Linker::new(&engine);
     wasmtime_wasi::p1::add_to_linker_sync(&mut linker, |s| s)?;
+
+    linker.func_wrap("testmodule", "shutdown", || {
+        println!("shutdown called");
+    })?;
 
     // Create WASI context with build_p1()
     let wasi = WasiCtx::builder().inherit_stdio().inherit_args().build_p1();

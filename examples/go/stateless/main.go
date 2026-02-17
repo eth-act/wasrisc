@@ -51,10 +51,6 @@ func Read[T any]() T {
 	return result
 }
 
-//go:wasmimport testmodule shutdown
-//go:noescape
-func shutdown()
-
 func main() {
 	witnessBytes := Read[[]byte]()
 	fmt.Printf("Read witness (%d bytes)\n", len(witnessBytes))
