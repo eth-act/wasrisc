@@ -5,6 +5,10 @@ import (
 	"runtime/debug"
 )
 
+//go:wasmimport testmodule input-data-len
+//go:noescape
+func inputDataLen() uint32
+
 //go:wasmimport testmodule testfunc
 //go:noescape
 func testfunc(a, b uint32) uint32
@@ -22,6 +26,8 @@ func main() {
 	debug.SetMemoryLimit(400 * (1 << 20))
 
 	fmt.Println("Hello world from golang")
+	n := inputDataLen()
+	fmt.Printf("Output from inputDataLen %d\n", n)
 	x := testfunc(1, 2)
 	fmt.Printf("Output from testFunc %d\n", x)
 	y := testfunc2(1, 2)

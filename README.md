@@ -211,9 +211,30 @@ https://github.com/llvm/llvm-project/commit/b06e736982a3568fe2bcea8688550f9e393b
 
 ### Custom WASM Imports
 
-You can call platform-specific functions from your WASM code using custom imports.
+Imports are realized as wasip1 modules and centrally declared in the WIT file `platform/custom-imports.wit`:
 
-In Go, use `//go:wasmimport`:
+```wit
+interface testmodule {
+  testfunc: func(a: u32, b: u32) -> u32;
+  ...
+}
+```
+
+The corresponding implementations are done within the platforms, e.g. in `platform/riscv-qemu/custom_imports.c`:
+
+```c
+// platform/amd64/custom_imports.c
+U32 testmodule__testfunc(void* p, U32 a, U32 b) {
+    printf("testfunc called with %u, %u\n", a, b);
+    return a + b;
+}
+```
+
+Identifiers match WIT naming conventions: either all lowercase or all caps with dashes as separators.
+
+#### Go
+
+You can call platform-specific functions in Go by using `//go:wasmimport`:
 
 ```go
 // examples/go/with_import/example.go
@@ -231,26 +252,29 @@ func main() {
 }
 ```
 
-Implement the import in `platform/*/custom_imports.c`:
-
-```c
-// platform/amd64/custom_imports.c
-U32 testmodule__testfunc(void* p, U32 a, U32 b) {
-    printf("testfunc called with %u, %u\n", a, b);
-    return a + b;
-}
-```
-
 #### Dotnet
 
 Dotnet imports are more complex than for Go, already because the build artifacts are wrapped as wasip2 components. In addition there are multiple FFI mechanisms.
 
-The currently implemented strategy revolves around unmanaged code marked as `UnmanagedCallersOnly` because managed code is wrapped in a binary blob within the w2c2 output. In order to call the unmanaged code from managed code a function pointer ("`delegate`") is used.
+The declaration is done within `examples/dotnet/custom-imports.cs`:
+
+```csharp
+        [global::System.Runtime.InteropServices.DllImportAttribute("example:api/testmodule", EntryPoint = "testfunc"), global::System.Runtime.InteropServices.WasmImportLinkageAttribute]
+        public static extern int testfunc(int a, int b);
+```
+
+Afterwards it's possible to call `CustomImports.testfunc(a, b)`.
 
 Alternatively a fairly popular project is `componentize-dotnet`. However it is still experimental and various not trivial to upgrade dependencies marked as alpha. The glue mechanism used by the project is from `wit-bindgen`. While it can easily map even complex interface structures, unfortunately subtleties such as `unsigned` flags (`uint`) get dropped during the process. It would still be useful to evaluate the underlying mechanism.
 
 https://github.com/bytecodealliance/componentize-dotnet
 https://github.com/bytecodealliance/wit-bindgen
+
+In addition it's also possible to explicitly work with unmanaged code, however this involves more steps.
+
+There is also csbindgen which works with unmanaged code and function pointers.
+
+https://github.com/Cysharp/csbindgen
 
 ### Memory Limits
 

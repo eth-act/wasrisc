@@ -1,0 +1,14 @@
+package example:api;
+
+interface testmodule {
+  testfunc: func(a: u32, b: u32) -> u32;
+  testfunc2: func(a: u32, b: u32) -> u32;
+  printk: func(val: u32);
+  input-data: func(index: u32) -> u32;
+  input-data-len: func() -> u32;
+  shutdown: func();
+}
+
+world hostapp {
+  import testmodule;
+}
