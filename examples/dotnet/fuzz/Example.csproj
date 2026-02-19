@@ -22,6 +22,9 @@
     <!-- Example packages -->
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+
+    <!-- Include wit file https://github.com/dotnet/runtime/issues/113868 -->
+    <LinkerArg Include="-Wl,--component-type=../../../platform/custom-imports.wit" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(RuntimeIdentifier)' == 'browser-wasm'">
