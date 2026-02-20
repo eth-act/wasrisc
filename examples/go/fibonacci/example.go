@@ -13,4 +13,9 @@ func main() {
 	n := 20
 	result := fibonacci(n)
 	fmt.Printf("Fibonacci(%d) = %d\n", n, result)
+
+	// During exit a fatal runtime error occurs in WAMR when
+	// compiled with --bounds-check=0. An early shutdown provides
+	// a reliable workaround.
+	shutdown()
 }

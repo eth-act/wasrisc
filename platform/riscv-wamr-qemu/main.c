@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 extern const char wasmModuleBuffer[];
 extern int wasmModuleBuffer_length;
+
+void shutdown();
 
 int main(void) {
     int argc = 0;
@@ -18,10 +21,30 @@ int main(void) {
     wasm_exec_env_t exec_env;
     uint32_t size, stack_size = 16*1024*1024;
 
+    RuntimeInitArgs init_args;
+    memset(&init_args, 0, sizeof(RuntimeInitArgs));
+
     wasm_runtime_set_log_level(WASM_LOG_LEVEL_VERBOSE);
 
-    /* initialize the wasm runtime by default configurations */
-    if (!wasm_runtime_init()) {
+    /* Define an array of NativeSymbol for the APIs to be exported. */
+    static NativeSymbol native_symbols[] = {
+        {
+            "shutdown", // the name of WASM function name
+            shutdown,   // the native function pointer
+            "()",       // the function prototype signature, avoid to use i32
+            NULL        // attachment is NULL
+        },
+    };
+
+    init_args.mem_alloc_type = Alloc_With_System_Allocator;
+
+    /* Native symbols need below registration phase */
+    init_args.n_native_symbols = sizeof(native_symbols) / sizeof(NativeSymbol);
+    init_args.native_module_name = "testmodule";
+    init_args.native_symbols = native_symbols;
+
+    /* initialize the wasm runtime with init_args */
+    if (!wasm_runtime_full_init(&init_args)) {
         printf("runtime init failed\n");
         exit(1);
     }

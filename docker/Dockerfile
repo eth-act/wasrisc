@@ -163,7 +163,7 @@ WORKDIR /tmp
 # https://github.com/llvm/llvm-project/issues/81440
 RUN git clone --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm.git wamr-riscv && \
     cd wamr-riscv && \
-    git checkout e9df4f8169eaafa387b001c0352aec0ea2080ed3 && \
+    git checkout a93ff4cbbf99d35869fac3e03a012e58fc6cfb9c && \
     cmake . \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/opt/wamr-riscv \

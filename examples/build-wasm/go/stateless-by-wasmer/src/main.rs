@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use wasmer::{sys::NativeEngineExt, Engine, Instance, Module, Store};
+use wasmer::{sys::NativeEngineExt, Engine, Function, Instance, Module, Store};
 use wasmer_wasix::{runtime::task_manager::tokio::TokioTaskManager, PluggableRuntime, WasiEnv};
 
 fn main() -> Result<()> {
@@ -41,7 +41,13 @@ fn main() -> Result<()> {
         .finalize(&mut store)?;
 
     // Create imports from WASI
-    let import_object = wasi_env.import_object(&mut store, &module)?;
+    let mut import_object = wasi_env.import_object(&mut store, &module)?;
+
+    let shutdown = Function::new_typed(&mut store, || {
+        println!("shutdown called");
+    });
+
+    import_object.define("testmodule", "shutdown", shutdown);
 
     // Instantiate the module
     let instance = Instance::new(&mut store, &module, &import_object)?;

@@ -14,5 +14,12 @@ func main() {
 	debug.SetMemoryLimit(400 * (1 << 20))
 
 	fmt.Println("Hello world from golang")
+
+	// During exit a fatal runtime error occurs in WAMR when
+	// compiled with --bounds-check=0. An early shutdown provides
+	// a reliable workaround.
+	shutdown()
+
 	panic("foo")
+
 }

@@ -1,5 +1,6 @@
 .section .text.init
 .global _start
+.global shutdown
 
 _start:
     la sp, _stack_top
@@ -17,6 +18,7 @@ bss_done:
     /* Call main */
     call main
 
+shutdown:
     /* https://github.com/xypron/riscv_test_payload (MIT-licensed) */
     li a7, 0x53525354   # SBI extension: SRST (System Reset)
     li a6, 0            # Function: system reset
