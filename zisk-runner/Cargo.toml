@@ -1,0 +1,13 @@
+# host/Cargo.toml
+
+[workspace]
+
+[package]
+name = "zisk-runner"
+edition = "2024"
+
+[dependencies]
+ere-zkvm-interface = { git = "https://github.com/eth-act/ere.git" }
+ere-dockerized = { git = "https://github.com/eth-act/ere.git" }
+serde = "1.0.228"
+bincode = "2.0.1"
