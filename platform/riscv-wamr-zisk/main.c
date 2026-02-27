@@ -22,6 +22,10 @@ int main(void) {
     printf("0x%08X\n", x1);
     printf("0x%08X\n", x2);
     printf("0x%08X\n", x3);
+    free(x3);
+    free(x2);
+    void* x4 = malloc(256);
+    printf("0x%08X\n", x4);
 
     int argc = 0;
     char *argv[0];
