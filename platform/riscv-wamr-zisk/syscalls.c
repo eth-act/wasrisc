@@ -9,7 +9,11 @@ void writeuartcc(const char c) {
     *ptr_val = c;
 }
 
+int _write(int file, char *ptr, int len);
+
 int readuartcc() {
+    const char* msg = "can't read!\n";
+    _write(2, (char *)msg, strlen(msg));
     while(1) { };
     return -1;
 }
@@ -75,6 +79,8 @@ void* _sbrk(int incr) {
 
     // Check if heap would grow too close to stack
     if ((current + incr > &_heap_end) || (current + incr < current)) {
+	const char* msg = "no heap!\n";
+	_write(2, (char *)msg, strlen(msg));
         errno = ENOMEM;
         return (void*) -1; // Return error
     }
