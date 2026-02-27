@@ -31,7 +31,7 @@ SECTIONS
   } >ram AT>ram :bss
 
   . = ALIGN(8);
-  PROVIDE(_stack_top = . + 0x100000);
+  PROVIDE(_stack_top = . + 0x8000000);
 
   PROVIDE(_heap_start = _stack_top);
   PROVIDE(_heap_end = ORIGIN(ram) + LENGTH(ram));

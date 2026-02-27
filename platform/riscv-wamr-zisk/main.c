@@ -9,7 +9,20 @@ extern int wasmModuleBuffer_length;
 
 void shutdown();
 
+int _write(int file, char *ptr, int len);
+void printk(uint32_t val);
+
 int main(void) {
+    _write(1, "marcin 1\n", strlen("marcin 1\n"));
+    printf("bugaj 1\n");
+
+    void* x1 = malloc(256);
+    void* x2 = malloc(256);
+    void* x3 = malloc(256);
+    printf("0x%08X\n", x1);
+    printf("0x%08X\n", x2);
+    printf("0x%08X\n", x3);
+
     int argc = 0;
     char *argv[0];
 
@@ -55,6 +68,7 @@ int main(void) {
         printf("runtime load module failed: %s\n", error_buf);
         exit(1);
     }
+    _write(1, "marcin 2\n", strlen("marcin 2\n"));
 
     /* create an instance of the WASM module (WASM linear memory is ready) */
     module_inst = wasm_runtime_instantiate(module, stack_size, 0, error_buf, sizeof(error_buf));
@@ -62,11 +76,15 @@ int main(void) {
         printf("wasm_runtime_instantiate failed as module_inst=%p: %s\n", module_inst, error_buf);
         exit(1);
     }
+    _write(1, "marcin 3\n", strlen("marcin 3\n"));
 
     if (!wasm_application_execute_main(module_inst, argc, argv)) {
         printf("error executing main\n");
         printf("exception: %s\n", wasm_runtime_get_exception(module_inst));
     }
+    _write(1, "marcin 4\n", strlen("marcin 4\n"));
+
+    shutdown();
 
     printf("wasm_runtime_unload...\n");
     wasm_runtime_unload(module);
