@@ -24,3 +24,7 @@ U32 testmodule__input_data(void *i, U32 k) {
 U32 testmodule__input_data_len() {
 	return test_input_data_len;
 }
+
+void testmodule__shutdown() {
+	printf("shutdown()\n");
+}

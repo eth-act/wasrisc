@@ -79,6 +79,7 @@ CFLAGS=(
     -g
     -DAMD64
     -D__bool_true_false_are_defined
+    -include stdbool.h
     -O0
 )
 
@@ -95,13 +96,14 @@ SOURCES=(
     platform/amd64/amd64.c
     platform/amd64/custom_imports.c
     "$GUEST_DIR/guest.c"
+    $GUEST_DIR/s0*.c
     w2c2/embedded/wasi.c
 )
 
 # Link libraries
 LIBS=(-lm)
 
-"$DOCKER_DIR/docker-shell.sh" gcc \
+clang \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
