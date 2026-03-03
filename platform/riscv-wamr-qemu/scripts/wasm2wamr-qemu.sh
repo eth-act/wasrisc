@@ -84,12 +84,14 @@ echo ""
 # https://github.com/bytecodealliance/wasm-micro-runtime/issues/3966
 # https://github.com/bytecodealliance/wasm-micro-runtime/pull/3967
 wamrc \
+    --xip \
+    --mllvm=-riscv-disable-using-constant-pool-for-large-ints \
     --target=riscv64 \
     --target-abi=lp64 \
     --cpu=generic-rv64 \
     --cpu-features='+i,+m,+a' \
-    --opt-level=0 \
-    --size-level=1 \
+    --opt-level=3 \
+    --size-level=0 \
     --bounds-checks=0 \
     -o $OUTPUT.riscv64.wamr $1
 
