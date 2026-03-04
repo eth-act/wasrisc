@@ -17,7 +17,7 @@ PATH=$WAMR_ROOT/bin/:$PATH
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <guest-c-package-dir> <output-elf>"
     echo ""
-    echo "Compiles a C package (from w2c2) to WAMR-based RISC-V binary for QEMU virt machine."
+    echo "Compiles WASM to WAMR-based RISC-V binary for QEMU virt machine."
     echo ""
     echo "Arguments:"
     echo "  guest-c-package-dir  Directory containing guest.c, guest.h, w2c2_base.h"
@@ -93,7 +93,7 @@ wamrc \
     --opt-level=3 \
     --size-level=0 \
     --bounds-checks=0 \
-    -o $OUTPUT.riscv64.wamr $1
+    -o $OUTPUT.riscv64.wamr.aot $1
 
 gcc platform/riscv-wamr-qemu/file2c/file2c.c \
     -o platform/riscv-wamr-qemu/file2c/file2c
@@ -104,7 +104,7 @@ gcc platform/riscv-wamr-qemu/file2c/file2c.c \
 #
 # https://github.com/bytecodealliance/wasm-micro-runtime/blob/main/core/iwasm/include/wasm_export.h
 platform/riscv-wamr-qemu/file2c/file2c \
-    $OUTPUT.riscv64.wamr \
+    $OUTPUT.riscv64.wamr.aot \
     wasmModuleBuffer > $OUTPUT.riscv64.wamr.c
 
 # Compile everything in one command via Docker
