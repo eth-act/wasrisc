@@ -122,8 +122,8 @@ CFLAGS=(
     -D__bool_true_false_are_defined
     -ffunction-sections
     -fdata-sections
-    -O0
-    -g
+    -O3
+    -fomit-frame-pointer
     -Wall
 )
 
@@ -143,7 +143,10 @@ SOURCES=(
 )
 
 # Assembly source
-ASM_SOURCE=platform/riscv-wamr-qemu/startup.S
+ASM_SOURCES=(
+    platform/riscv-wamr-qemu/startup.S
+    w2c2/embedded/memops.S
+)
 
 # Linker script
 LINKER_SCRIPT=platform/riscv-wamr-qemu/virt.ld
@@ -157,6 +160,10 @@ LDFLAGS=(
     -liwasm
     -Wl,--gc-sections
     -Wl,-Map="${OUTPUT%.elf}.map"
+    -Wl,--wrap=free
+    -Wl,--wrap=memset
+    -Wl,--wrap=memcpy
+    -Wl,--wrap=memmove
 )
 
 # Link libraries
@@ -166,7 +173,7 @@ ${PREFIX}gcc \
     "${CFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
-    "$ASM_SOURCE" \
+    "${ASM_SOURCES[@]}" \
     "${LDFLAGS[@]}" \
     "${LIBS[@]}" \
     -o "$OUTPUT" 2>&1

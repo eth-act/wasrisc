@@ -3,11 +3,41 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "uart.h"
 
 extern const char wasmModuleBuffer[];
 extern int wasmModuleBuffer_length;
 
 void shutdown();
+
+// risc-v memcpy, memset, memmove functions
+//
+// memops.S (BSD-2-Clause licensed)
+//
+// https://github.com/avx/riscv_memops
+void *_memcpy(void *dst, const void *src, size_t n);
+void *_memmove(void *dest, const void *src, size_t n);
+void *_memset(void *b, int c, size_t len);
+
+void __wrap_free(void *ptr) {
+    // Trivial free
+}
+
+void *__wrap_memset(void *s, int c, size_t n) {
+    // Avoid zero-ing for large allocations
+    if (n > (1 << 10) && c == 0) {
+        return s;
+    }
+    return _memset(s, c, n);
+}
+
+void *__wrap_memcpy(void *dest, const void *src, size_t n) {
+    return _memcpy(dest, src, n);
+}
+
+void *__wrap_memmove(void *dest, const void *src, size_t n) {
+	return _memmove(dest, src, n);
+}
 
 int main(void) {
     int argc = 0;
