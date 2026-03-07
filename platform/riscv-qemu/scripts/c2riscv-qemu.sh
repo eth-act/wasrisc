@@ -88,6 +88,7 @@ CFLAGS=(
     $OPT_LEVEL
     --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
     --gcc-toolchain=/opt/riscv-newlib
+    -mllvm -enable-misched=false
 )
 
 # Include directories
