@@ -255,7 +255,7 @@ RUN wget -q https://go.dev/dl/go1.25.6.linux-amd64.tar.gz && \
 # Stage for Rust installation
 FROM base AS rust-installer
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.93.0
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
