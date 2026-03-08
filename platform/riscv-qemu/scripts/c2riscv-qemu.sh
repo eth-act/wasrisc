@@ -86,6 +86,9 @@ CFLAGS=(
     -D__bool_true_false_are_defined
     -include stdbool.h
     $OPT_LEVEL
+    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
+    --gcc-toolchain=/opt/riscv-newlib
+    -mllvm -enable-misched=false
 )
 
 # Include directories
@@ -121,9 +124,6 @@ LDFLAGS=(
     -nostartfiles
     -nostdlib
     -static
-    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
-    --gcc-toolchain=/opt/riscv-newlib
-    -g
     -Wl,--gc-sections
     -Wl,-Map="${OUTPUT%.elf}.map"
 )
