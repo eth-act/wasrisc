@@ -164,7 +164,7 @@ WORKDIR /tmp
 # https://github.com/llvm/llvm-project/issues/81440
 RUN git clone --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm.git wamr-riscv && \
     cd wamr-riscv && \
-    git checkout a93ff4cbbf99d35869fac3e03a012e58fc6cfb9c && \
+    git checkout ec60e591b77ed5627bde2f54162a67c9d129aba3 && \
     cmake . \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/opt/wamr-riscv \
@@ -176,7 +176,7 @@ RUN git clone --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm
         -DWAMR_BUILD_WASI_THREADS=0 \
         -DTHREADS_PREFER_PTHREAD_FLAG=OFF \
         -DCMAKE_THREAD_LIBS_INIT="" \
-        -DWAMR_BUILD_FAST_INTERP=1 \
+        -DWAMR_BUILD_FAST_INTERP=0 \
         -DWAMR_BUILD_JIT=0 \
         -DWAMR_BUILD_AOT=1 \
         -DCMAKE_SYSTEM_PROCESSOR=riscv64 \
@@ -184,6 +184,13 @@ RUN git clone --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm
         -DCMAKE_C_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-gcc \
         -DCMAKE_CXX_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-g++ \
         -DCMAKE_ASM_COMPILER=/opt/riscv-newlib/bin/riscv64-unknown-elf-gcc \
+        -DWAMR_DISABLE_WAKEUP_BLOCKING_OP=1 \
+        -DWAMR_BUILD_GLOBAL_HEAP_POOL=1 \
+        -DWAMR_DISABLE_HW_BOUND_CHECK=1 \
+        -DWAMR_DISABLE_WRITE_GS_BASE=1 \
+        -DWAMR_BUILD_QUICK_AOT_ENTRY=0 \
+        -DWAMR_BUILD_MINI_LOADER=0 \
+        -DWAMR_BUILD_REF_TYPES=0 \
         -DWASM_ENABLE_SIMDE=OFF \
         -DWAMR_BUILD_SIMD=0 && \
     make && \
