@@ -190,7 +190,7 @@ RUN git clone --branch zkvm https://github.com/psilva261/wasm-micro-runtime-zkvm
         -DWAMR_DISABLE_WRITE_GS_BASE=1 \
         -DWAMR_BUILD_QUICK_AOT_ENTRY=0 \
         -DWAMR_BUILD_MINI_LOADER=0 \
-        -DWAMR_BUILD_REF_TYPES=0 \
+        -DWAMR_BUILD_REF_TYPES=1 \
         -DWASM_ENABLE_SIMDE=OFF \
         -DWAMR_BUILD_SIMD=0 && \
     make && \
