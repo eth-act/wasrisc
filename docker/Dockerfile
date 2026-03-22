@@ -102,6 +102,17 @@ RUN git clone https://github.com/riscv/riscv-gnu-toolchain riscv-gnu-toolchain &
     cd / && \
     rm -rf /tmp/riscv-gnu-toolchain
 
+# Stage for installing pre-packaged RISC-V GNU LLVM Toolchain
+FROM base AS riscv-gnu-glibc-clang-installer
+
+WORKDIR /tmp
+
+RUN wget https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2026.03.13/riscv64-glibc-ubuntu-24.04-llvm.tar.xz && \
+    cd /opt && \
+    tar xf /tmp/riscv64-glibc-ubuntu-24.04-llvm.tar.xz && \
+    mv /opt/riscv /opt/riscv-glibc-llvm && \
+    rm /tmp/riscv64-glibc-ubuntu-24.04-llvm.tar.xz
+
 # Stage for building AARCH64 GCC MUSL Toolchain
 FROM base AS aarch64-musl-builder
 
@@ -296,6 +307,7 @@ WORKDIR /opt
 # Copy all built toolchains and tools
 COPY --from=llvm-builder /opt/llvm-21 /opt/llvm-21
 COPY --from=riscv-gnu-builder /opt/riscv-newlib /opt/riscv-newlib
+COPY --from=riscv-gnu-glibc-clang-installer /opt/riscv-glibc-llvm /opt/riscv-glibc-llvm
 COPY --from=aarch64-musl-builder /opt/aarch64-linux-musl-gcc /opt/aarch64-linux-musl-gcc
 COPY --from=qemu-builder /opt/qemu-install/usr/local /usr/local
 COPY --from=qemu-builder /opt/qemu-install/libinsn.so /libinsn.so

@@ -73,14 +73,11 @@ echo "Compiling..."
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    --target=riscv64
-    -march=rv64ima_zicsr
-    -mabi=lp64
     -mcmodel=medany
     -static
     -include stdbool.h
-    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
-    --gcc-toolchain=/opt/riscv-newlib
+    -flto
+    -mllvm -enable-misched=false
     $OPT_LEVEL
 )
 
@@ -99,8 +96,32 @@ SOURCES=(
     w2c2/embedded/wasi.c
 )
 
-clang \
+echo ""
+echo "Generate instrumented binary: $OUTPUT.instrumented"
+echo ""
+
+/opt/riscv-glibc-llvm/bin/clang \
     "${CFLAGS[@]}" \
+    -fprofile-instr-generate=$OUTPUT.profraw \
+    "${INCLUDES[@]}" \
+    "${SOURCES[@]}" \
+    -o "$OUTPUT.instrumented" -lm 2>&1
+
+echo ""
+echo "Run instrumented binary: $OUTPUT.instrumented"
+echo ""
+
+qemu-riscv64 "$OUTPUT.instrumented"
+
+/opt/riscv-glibc-llvm/bin/llvm-profdata merge -output=$OUTPUT.profdata $OUTPUT.profraw
+
+echo ""
+echo "Compile based on profile..."
+echo ""
+
+/opt/riscv-glibc-llvm/bin/clang \
+    "${CFLAGS[@]}" \
+    -fprofile-instr-use=$OUTPUT.profdata \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
     -o "$OUTPUT" -lm 2>&1
