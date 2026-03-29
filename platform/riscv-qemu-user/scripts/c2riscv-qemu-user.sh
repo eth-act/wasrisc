@@ -84,6 +84,10 @@ CFLAGS=(
     $OPT_LEVEL
 )
 
+LDFLAGS=(
+    -fuse-ld=lld
+)
+
 # Include directories
 INCLUDES=(
     -I"$GUEST_DIR"
@@ -101,6 +105,7 @@ SOURCES=(
 
 clang \
     "${CFLAGS[@]}" \
+    "${LDFLAGS[@]}" \
     "${INCLUDES[@]}" \
     "${SOURCES[@]}" \
     -o "$OUTPUT" -lm 2>&1
