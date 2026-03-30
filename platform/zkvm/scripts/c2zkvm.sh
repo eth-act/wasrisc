@@ -114,6 +114,7 @@ LINKER_SCRIPT=platform/zkvm/zkvm.ld
 
 # Linker flags
 LDFLAGS=(
+    -fuse-ld=lld
     --target=riscv64
     -march=rv64ima
     -mabi=lp64

@@ -120,6 +120,7 @@ LINKER_SCRIPT=platform/riscv-qemu/virt.ld
 
 # Linker flags (matching demo-qemu-virt-riscv/Makefile)
 LDFLAGS=(
+    -fuse-ld=lld
     -T"$LINKER_SCRIPT"
     -nostartfiles
     -nostdlib
