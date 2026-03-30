@@ -44,6 +44,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     jq \
     binaryen \
+    parallel \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y \
@@ -88,13 +89,14 @@ WORKDIR /tmp
 
 RUN git clone https://github.com/riscv/riscv-gnu-toolchain riscv-gnu-toolchain && \
     cd riscv-gnu-toolchain && \
-    git checkout 311e70f6c55953a624ca670de7c85af38c2b23c2 && \
+    git checkout 98c8ec4cb520443f16cdd36280b65fba3a5c5f54 && \
     CFLAGS="-O2 -g0" CXXFLAGS="-O2 -g0" ./configure \
         --prefix=/opt/riscv-newlib \
         --with-arch=rv64ima \
         --disable-gdb \
         --with-cmodel=medany \
-        --enable-strip && \
+        --enable-strip \
+        --enable-llvm && \
     make -j$(nproc) && \
     find /opt/riscv-newlib -type f -executable -exec strip --strip-debug {} + 2>/dev/null || true && \
     find /opt/riscv-newlib -name "*.a" -exec strip --strip-debug {} + 2>/dev/null || true && \

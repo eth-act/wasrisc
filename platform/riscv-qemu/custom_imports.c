@@ -34,7 +34,27 @@ int testmodule__printk(void* instance, U32 val) {
     puts(buf);
 }
 
+// https://clang.llvm.org/docs/SourceBasedCodeCoverage.html#introduction
+// https://developer.arm.com/documentation/ka006511/1-0
+// https://github.com/arm/arm-toolchain/blob/arm-software/arm-software/embedded/samples/src/cpp-baremetal-semihosting-prof/proflib.c#L78 (Apache 2.0)
+//
+// https://github.com/llvm/llvm-project/issues/123034
+// https://github.com/llvm/llvm-project/pull/167998/changes
+//
+// -> needs -DCOMPILER_RT_PROFILE_BAREMETAL
+//extern uint64_t __llvm_profile_get_size_for_buffer(void);
+//extern int __llvm_profile_write_buffer(char *buffer);
+
 void testmodule__shutdown(void* instance) {
+    puts("shutdown()\n");
+    /*int n = __llvm_profile_get_size_for_buffer();
+    if (n < 0) {
+        puts("negative buffer\n");
+    } else if (n == 0) {
+        puts("zero buffer\n");
+    } else {
+        puts("positive buffer\n");
+    }*/
     exit(0);
 }
 

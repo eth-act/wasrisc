@@ -53,6 +53,10 @@ size_t strlen(const char *s) {
     return strlen_max;
 }
 
+void *fopen(const char *filename, const char *mode) {
+    puts("fopen\n");
+}
+
 /* Trap handler for WASM runtime errors */
 void trap(Trap trap) {
     puts("trap(..)\n");
