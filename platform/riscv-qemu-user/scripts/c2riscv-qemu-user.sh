@@ -164,6 +164,7 @@ parallel -j$(nproc) /opt/riscv-glibc-llvm/bin/clang \
      --target=riscv64-unknown-linux-gnu \
     "${COMMON_FLAGS[@]}" \
     "${CFLAGS[@]}" \
+    "${LDFLAGS[@]}" \
     "${INCLUDES[@]}" \
     ::: \
     "${SOURCES[@]}" 2>&1
