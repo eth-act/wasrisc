@@ -25,8 +25,8 @@ echo "Transpiling WASM to WAMR AOT with wamrc..."
 
 echo "Compiling C to RISCV..."
 
-OPT_LEVEL="-O0" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O0.elf
-OPT_LEVEL="-O3" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O3.elf
+OPT_LEVEL="-O0 -flto" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O0.elf
+OPT_LEVEL="-O3 -flto" ./platform/riscv-qemu/scripts/c2riscv-qemu.sh build/c-packages/reva-client-eth/ build/bin/reva-client-eth.riscv.O3.elf
 (cd examples/rust/reva-client-eth; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static' cargo build --bin=reva-client-eth --target riscv64gc-unknown-linux-gnu --release)
 
 (cd examples/build-wasm/rust/reva-client-eth-by-wasmtime/; RUSTFLAGS='-C target-feature=+crt-static -C link-arg=-static'   cargo build --release --target riscv64gc-unknown-linux-gnu)
