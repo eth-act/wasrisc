@@ -159,7 +159,6 @@ echo "Compiling..."
 PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
 COMMON_FLAGS=(
-    -g
     $OPT_LEVEL
 )
 
