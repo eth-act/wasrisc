@@ -40,6 +40,12 @@ else
     echo "OPT_LEVEL not set, using default: $OPT_LEVEL"
 fi
 
+if [ -n "$PGO_OPT" ]; then
+    echo "Enabling profile-guided optimization"
+else
+	echo "PGO_OPT not set, not using profile-guided optimization"
+fi
+
 # Change to project root
 cd "$PROJECT_ROOT"
 
@@ -73,20 +79,18 @@ echo "Compiling..."
 
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
-    --target=riscv64
-    -march=rv64ima_zicsr
-    -mabi=lp64
     -mcmodel=medany
-    -static
     -include stdbool.h
-    --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
-    --gcc-toolchain=/opt/riscv-newlib
-    $OPT_LEVEL
+    -mllvm -enable-misched=false
 )
 
 LDFLAGS=(
     -fuse-ld=lld
+    -static
 )
+
+# Link libraries
+LIBS=(-lm)
 
 # Include directories
 INCLUDES=(
@@ -101,14 +105,77 @@ SOURCES=(
     "$GUEST_DIR/guest.c"
     $GUEST_DIR/s0*.c
     w2c2/embedded/wasi.c
+    w2c2/embedded/wasip2.c
 )
 
-clang \
+if [ -n "$PGO_OPT" ]; then
+    echo ""
+    echo "Generate instrumented binary: $OUTPUT.instrumented"
+    echo ""
+
+    # Remove object files
+    rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.o $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
+
+    parallel -j$(nproc) /opt/riscv-glibc-llvm/bin/clang \
+        -c \
+        -fprofile-instr-generate=$OUTPUT.profraw \
+         --target=riscv64-unknown-linux-gnu \
+        "${CFLAGS[@]}" \
+        "${INCLUDES[@]}" \
+        ::: \
+        "${SOURCES[@]}" 2>&1
+
+    /opt/riscv-glibc-llvm/bin/clang \
+        --target=riscv64-unknown-linux-gnu \
+        -fprofile-instr-generate=$OUTPUT.profraw \
+        *.o \
+        "${LDFLAGS[@]}" \
+        "${LIBS[@]}" \
+        -o "$OUTPUT.instrumented" 2>&1
+
+    echo ""
+    echo "Run instrumented binary: $OUTPUT.instrumented"
+    echo ""
+
+    qemu-riscv64 "$OUTPUT.instrumented"
+
+    /opt/riscv-glibc-llvm/bin/llvm-profdata merge -output=$OUTPUT.profdata $OUTPUT.profraw
+fi
+
+echo ""
+echo "Compile binary..."
+echo ""
+
+# Remove object files
+rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.o $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
+
+COMMON_FLAGS=(
+    $OPT_LEVEL
+)
+
+if [ -n "$PGO_OPT" ]; then
+    COMMON_FLAGS+=(
+        -fprofile-instr-use=$OUTPUT.profdata
+    )
+fi
+
+parallel -j$(nproc) /opt/riscv-glibc-llvm/bin/clang \
+    -c \
+     --target=riscv64-unknown-linux-gnu \
+    "${COMMON_FLAGS[@]}" \
     "${CFLAGS[@]}" \
     "${LDFLAGS[@]}" \
     "${INCLUDES[@]}" \
-    "${SOURCES[@]}" \
-    -o "$OUTPUT" -lm 2>&1
+    ::: \
+    "${SOURCES[@]}" 2>&1
+
+/opt/riscv-glibc-llvm/bin/clang \
+    --target=riscv64-unknown-linux-gnu \
+    *.o \
+    "${COMMON_FLAGS[@]}" \
+    "${LDFLAGS[@]}" \
+    "${LIBS[@]}" \
+    -o "$OUTPUT" 2>&1
 
 # Check if compilation succeeded
 if [ $? -eq 0 ] && [ -f "$OUTPUT" ]; then

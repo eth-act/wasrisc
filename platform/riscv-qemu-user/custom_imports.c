@@ -18,7 +18,7 @@ U32 testmodule__testfunc2(void* instance, U32 a, U32 b) {
     return a * b;
 }
 
-int testmodule__printk(void* instance, U32 val) {
+void testmodule__printk(void* instance, U32 val) {
     char buf[12];
     static const char hex[] = "0123456789abcdef";
 

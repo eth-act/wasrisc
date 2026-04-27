@@ -32,6 +32,7 @@ fi
 
 GUEST_DIR="$1"
 OUTPUT="$2"
+OUTPUT_USER_INSTR="$OUTPUT-user-instr"
 
 if [ -n "$OPT_LEVEL" ]; then
     OPT_LEVEL="$OPT_LEVEL"
@@ -40,6 +41,12 @@ else
     # OPT_LEVEL is not set, set default value
     OPT_LEVEL="-O0"
     echo "OPT_LEVEL not set, using default: $OPT_LEVEL"
+fi
+
+if [ -n "$PGO_OPT" ]; then
+    echo "Enabling profile-guided optimization"
+else
+	echo "PGO_OPT not set, not using profile-guided optimization"
 fi
 
 # Change to project root
@@ -60,6 +67,81 @@ if [ ! -f "$GUEST_DIR/guest.c" ] || [ ! -f "$GUEST_DIR/guest.h" ]; then
     exit 1
 fi
 
+if [ -n "$PGO_OPT" ]; then
+    echo "=========================================================="
+    echo "C to RISC-V QEMU User Compilation for instrumentation"
+    echo "=========================================================="
+    echo "Guest package: $GUEST_DIR"
+    echo "Output binary: $OUTPUT_USER_INSTR."
+    echo ""
+
+    # Compile everything in one command via Docker
+    echo "Compiling..."
+
+    # Compiler flags (using -O0 for faster compilation of large generated files)
+    CFLAGS=(
+        -mcmodel=medany
+        -include stdbool.h
+        -mllvm -enable-misched=false
+    )
+
+    LDFLAGS=(
+        -fuse-ld=lld
+        -static
+    )
+
+    # Link libraries
+    LIBS=(-lm)
+
+    # Include directories
+    INCLUDES=(
+        -I"$GUEST_DIR"
+        -Iw2c2/embedded
+    )
+
+    # Source files
+    SOURCES=(
+        platform/riscv-qemu-user/main.c
+        platform/riscv-qemu-user/custom_imports.c
+        "$GUEST_DIR/guest.c"
+        $GUEST_DIR/s0*.c
+        w2c2/embedded/wasi.c
+        w2c2/embedded/wasip2.c
+    )
+
+    echo ""
+    echo "Generate instrumented binary: $OUTPUT_USER_INSTR.instrumented"
+    echo ""
+
+    # Remove object files
+    rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.o $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
+
+
+    parallel -j$(nproc) /opt/riscv-glibc-llvm/bin/clang \
+        -c \
+        -fprofile-instr-generate=$OUTPUT_USER_INSTR.profraw \
+        "${CFLAGS[@]}" \
+        "${INCLUDES[@]}" \
+        ::: \
+        "${SOURCES[@]}" 2>&1
+
+    /opt/riscv-glibc-llvm/bin/clang \
+        -fprofile-instr-generate=$OUTPUT_USER_INSTR.profraw \
+        *.o \
+       "${LDFLAGS[@]}" \
+        "${LIBS[@]}" \
+        -o "$OUTPUT.instrumented" 2>&1
+
+    echo ""
+    echo "Run instrumented binary: $OUTPUT_USER_INSTR.instrumented"
+    echo ""
+
+    qemu-riscv64 "$OUTPUT_USER_INSTR.instrumented"
+
+    /opt/riscv-glibc-llvm/bin/llvm-profdata merge -output=$OUTPUT_USER_INSTR.profdata $OUTPUT_USER_INSTR.profraw
+fi
+
+
 # Create output directory
 mkdir -p "$(dirname "$OUTPUT")"
 
@@ -76,16 +158,26 @@ echo "Compiling..."
 # RISC-V toolchain prefix
 PREFIX=/opt/riscv-newlib/bin/riscv64-unknown-elf-
 
+COMMON_FLAGS=(
+    $OPT_LEVEL
+)
+
+if [ -n "$PGO_OPT" ]; then
+    COMMON_FLAGS+=(
+        -fprofile-instr-use=$OUTPUT_USER_INSTR.profdata
+    )
+fi
+
 # Compiler flags (using -O0 for faster compilation of large generated files)
 CFLAGS=(
     --target=riscv64
     -march=rv64ima_zicsr
     -mabi=lp64
     -mcmodel=medany
-    -specs=nosys.specs
     -D__bool_true_false_are_defined
     -include stdbool.h
-    $OPT_LEVEL
+    -Wprofile-instr-out-of-date
+    -Wno-profile-instr-unprofiled
     --sysroot=/opt/riscv-newlib/riscv64-unknown-elf
     --gcc-toolchain=/opt/riscv-newlib
     -mllvm -enable-misched=false
@@ -127,16 +219,27 @@ LDFLAGS=(
     -static
     -Wl,--gc-sections
     -Wl,-Map="${OUTPUT%.elf}.map"
+    -L/opt/riscv-newlib/lib/gcc/riscv64-unknown-elf/15.2.0
 )
 
 # Link libraries
 LIBS=(-lm -lgcc)
 
-clang \
+# Remove object files
+rm -f $PROJECT_ROOT/custom_imports.o $PROJECT_ROOT/guest.o $PROJECT_ROOT/main.o $PROJECT_ROOT/memlib.o $PROJECT_ROOT/memops.o $PROJECT_ROOT/s00000*.o $PROJECT_ROOT/startup.o $PROJECT_ROOT/wasi.o $PROJECT_ROOT/wasip2.o $PROJECT_ROOT/zkvm.o
+
+parallel -j$(nproc) /opt/riscv-newlib/bin/clang \
+    -c \
     "${CFLAGS[@]}" \
+    "${COMMON_FLAGS[@]}" \
     "${INCLUDES[@]}" \
+    ::: \
     "${SOURCES[@]}" \
-    "${ASM_SOURCES[@]}" \
+    "${ASM_SOURCES[@]}" 2>&1
+
+/opt/riscv-newlib/bin/clang \
+    *.o \
+    "${COMMON_FLAGS[@]}" \
     "${LDFLAGS[@]}" \
     "${LIBS[@]}" \
     -o "$OUTPUT" 2>&1

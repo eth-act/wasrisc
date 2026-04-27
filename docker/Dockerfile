@@ -44,6 +44,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     jq \
     binaryen \
+    parallel \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y \
@@ -88,19 +89,31 @@ WORKDIR /tmp
 
 RUN git clone https://github.com/riscv/riscv-gnu-toolchain riscv-gnu-toolchain && \
     cd riscv-gnu-toolchain && \
-    git checkout 311e70f6c55953a624ca670de7c85af38c2b23c2 && \
+    git checkout 98c8ec4cb520443f16cdd36280b65fba3a5c5f54 && \
     CFLAGS="-O2 -g0" CXXFLAGS="-O2 -g0" ./configure \
         --prefix=/opt/riscv-newlib \
         --with-arch=rv64ima \
         --disable-gdb \
         --with-cmodel=medany \
-        --enable-strip && \
+        --enable-strip \
+        --enable-llvm && \
     make -j$(nproc) && \
     find /opt/riscv-newlib -type f -executable -exec strip --strip-debug {} + 2>/dev/null || true && \
     find /opt/riscv-newlib -name "*.a" -exec strip --strip-debug {} + 2>/dev/null || true && \
     find /opt/riscv-newlib -name "*.so" -exec strip --strip-debug {} + 2>/dev/null || true && \
     cd / && \
     rm -rf /tmp/riscv-gnu-toolchain
+
+# Stage for installing pre-packaged RISC-V GNU LLVM Toolchain
+FROM base AS riscv-gnu-glibc-clang-installer
+
+WORKDIR /tmp
+
+RUN wget https://github.com/riscv-collab/riscv-gnu-toolchain/releases/download/2026.03.13/riscv64-glibc-ubuntu-24.04-llvm.tar.xz && \
+    cd /opt && \
+    tar xf /tmp/riscv64-glibc-ubuntu-24.04-llvm.tar.xz && \
+    mv /opt/riscv /opt/riscv-glibc-llvm && \
+    rm /tmp/riscv64-glibc-ubuntu-24.04-llvm.tar.xz
 
 # Stage for building AARCH64 GCC MUSL Toolchain
 FROM base AS aarch64-musl-builder
@@ -296,6 +309,7 @@ WORKDIR /opt
 # Copy all built toolchains and tools
 COPY --from=llvm-builder /opt/llvm-21 /opt/llvm-21
 COPY --from=riscv-gnu-builder /opt/riscv-newlib /opt/riscv-newlib
+COPY --from=riscv-gnu-glibc-clang-installer /opt/riscv-glibc-llvm /opt/riscv-glibc-llvm
 COPY --from=aarch64-musl-builder /opt/aarch64-linux-musl-gcc /opt/aarch64-linux-musl-gcc
 COPY --from=qemu-builder /opt/qemu-install/usr/local /usr/local
 COPY --from=qemu-builder /opt/qemu-install/libinsn.so /libinsn.so

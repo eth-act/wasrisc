@@ -35,6 +35,7 @@ int testmodule__printk(void* instance, U32 val) {
 }
 
 void testmodule__shutdown(void* instance) {
+    puts("shutdown()\n");
     exit(0);
 }
 
@@ -45,3 +46,4 @@ U32 testmodule__inputX2DdataX2Dlen(void* instance) {
 U32 testmodule__inputX2Ddata(void* instance, U32 index) {
     return 0;
 }
+
